@@ -1,0 +1,40 @@
+import mongoose from 'mongoose';
+
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    employeeId: { type: String, unique: true, sparse: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true }, // Stored as plain text per user request
+    role: { type: String, enum: ['admin', 'user'], default: 'user' },
+    department: { type: String },
+    contactNumber: { type: String },
+    urgentContactNumber: { type: String },
+    address: { type: String },
+    dob: { type: Date },
+    joiningDate: { type: Date },
+    fatherName: { type: String },
+    bloodGroup: { type: String },
+    profileImage: { type: String },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Updated: Direct string comparison for passwords
+userSchema.methods.matchPassword = async function (enteredPassword: string) {
+  return enteredPassword === this.password;
+};
+
+// Removed bcrypt hashing logic in pre-save hook
+userSchema.pre('save', async function (this: any) {
+  if (!this.isModified('password')) {
+    return;
+  }
+  // No hashing performed as per user request
+});
+
+const User = mongoose.model('User', userSchema);
+
+export default User;
