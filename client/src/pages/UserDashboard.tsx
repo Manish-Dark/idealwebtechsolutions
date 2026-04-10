@@ -73,14 +73,14 @@ const UserDashboard: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '40px' }}>
+    <div style={{ padding: '0px' }}>
       <header style={{ marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Hello, {user?.name} 👋</h1>
+        <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Hello, {user?.name} 👋</h1>
         <p style={{ color: 'var(--text-muted)' }}>Welcome back to your employee dashboard. Have a productive day!</p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '40px' }}>
-        <div className="glass-card">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 250px), 1fr))', gap: '24px', marginBottom: '40px' }}>
+        <div className="glass-card" style={{ padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
             <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)' }}>
               <Calendar size={24} />
@@ -89,8 +89,8 @@ const UserDashboard: React.FC = () => {
           </div>
           <h2 style={{ fontSize: '28px', fontWeight: 700 }}>{stats.present} <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 400 }}>Total</span></h2>
         </div>
-
-        <div className="glass-card">
+ 
+        <div className="glass-card" style={{ padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
             <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)' }}>
               <Briefcase size={24} />
@@ -99,8 +99,8 @@ const UserDashboard: React.FC = () => {
           </div>
           <h2 style={{ fontSize: '28px', fontWeight: 700 }}>{stats.pendingTasks}</h2>
         </div>
-
-        <div className="glass-card">
+ 
+        <div className="glass-card" style={{ padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
             <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'rgba(245, 158, 11, 0.1)', color: 'var(--warning)' }}>
               <FileText size={24} />
@@ -109,8 +109,8 @@ const UserDashboard: React.FC = () => {
           </div>
           <h2 style={{ fontSize: '28px', fontWeight: 700 }}>{stats.holidays} <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 400 }}>Upcoming</span></h2>
         </div>
-
-        <div className="glass-card">
+ 
+        <div className="glass-card" style={{ padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
             <div style={{ padding: '12px', borderRadius: '12px', backgroundColor: 'rgba(0, 102, 255, 0.1)', color: 'var(--primary)' }}>
               <FileText size={24} />
@@ -121,7 +121,7 @@ const UserDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '24px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
           {/* COMPANY ANNOUNCEMENTS */}

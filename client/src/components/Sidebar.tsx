@@ -3,12 +3,17 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Calendar, CheckSquare, LogOut,
   User, FileText, MapPin, CreditCard, Briefcase, Building2,
-  Megaphone, Activity, Car, Sun, Moon,
+  Megaphone, Activity, Car, Sun, Moon, X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -43,19 +48,22 @@ const Sidebar: React.FC = () => {
   const links = user?.role === 'admin' ? adminLinks : userLinks;
 
   return (
-    <div style={{
-      width: '260px',
-      height: '100vh',
-      position: 'fixed',
-      left: 0,
-      top: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      zIndex: 100,
-      background: 'var(--sidebar-bg)',
-      boxShadow: '4px 0 24px rgba(99,102,241,0.25)',
-      overflow: 'hidden',
-    }}>
+    <div 
+      className={`sidebar-mobile-hidden ${isOpen ? 'sidebar-mobile-visible' : ''}`}
+      style={{
+        width: '260px',
+        height: '100vh',
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 100,
+        background: 'var(--sidebar-bg)',
+        boxShadow: '4px 0 24px rgba(99,102,241,0.25)',
+        overflow: 'hidden',
+      }}
+    >
       {/* Decorative orbs */}
       <div style={{
         position: 'absolute', top: '-40px', right: '-40px',
@@ -68,7 +76,7 @@ const Sidebar: React.FC = () => {
         background: 'rgba(255,255,255,0.05)', pointerEvents: 'none',
       }} />
 
-      {/* Logo */}
+      {/* Logo Area */}
       <div style={{
         padding: '24px 20px 18px',
         borderBottom: '1px solid var(--sidebar-border)',
@@ -78,53 +86,74 @@ const Sidebar: React.FC = () => {
         justifyContent: 'space-between',
         position: 'relative',
       }}>
-        <div style={{
-          width: '42px', height: '42px', borderRadius: '13px',
-          background: 'rgba(255,255,255,0.22)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '14px', fontWeight: 900, color: 'white',
-          letterSpacing: '0.5px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3)',
-        }}>CMS</div>
-
-        {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          title={isDark ? 'Switch to Light' : 'Switch to Dark'}
-          style={{
-            width: '46px',
-            height: '26px',
-            borderRadius: '99px',
-            background: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.2)',
-            border: '1px solid rgba(255,255,255,0.3)',
-            cursor: 'pointer',
-            position: 'relative',
-            transition: 'background 0.3s ease',
-            flexShrink: 0,
-          }}
-        >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
-            position: 'absolute',
-            top: '3px',
-            left: '3px',
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            background: 'white',
-            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: isDark ? 'translateX(20px)' : 'translateX(0)',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            {isDark
-              ? <Moon size={11} color="#6366F1" strokeWidth={2.5} />
-              : <Sun size={11} color="#F97316" strokeWidth={2.5} />
-            }
-          </div>
-        </button>
+            width: '42px', height: '42px', borderRadius: '13px',
+            background: 'rgba(255,255,255,0.22)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '14px', fontWeight: 900, color: 'white',
+            letterSpacing: '0.5px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3)',
+          }}>CMS</div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            title={isDark ? 'Switch to Light' : 'Switch to Dark'}
+            style={{
+              width: '46px',
+              height: '26px',
+              borderRadius: '99px',
+              background: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.2)',
+              border: '1px solid rgba(255,255,255,0.3)',
+              cursor: 'pointer',
+              position: 'relative',
+              transition: 'background 0.3s ease',
+              flexShrink: 0,
+            }}
+          >
+            <div style={{
+              position: 'absolute',
+              top: '3px',
+              left: '3px',
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              background: 'white',
+              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: isDark ? 'translateX(20px)' : 'translateX(0)',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              {isDark
+                ? <Moon size={11} color="#6366F1" strokeWidth={2.5} />
+                : <Sun size={11} color="#F97316" strokeWidth={2.5} />
+              }
+            </div>
+          </button>
+
+          {/* Mobile Close Button */}
+          <button 
+            className="mobile-only"
+            onClick={onClose}
+            style={{
+              background: 'rgba(255,255,255,0.15)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '6px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'var(--sidebar-width) === "0px" ? "flex" : "none"' // Handled by media query usually, but adding for logic
+            }}
+          >
+            <X size={20} />
+          </button>
+        </div>
       </div>
 
       {/* Profile chip */}
@@ -171,6 +200,7 @@ const Sidebar: React.FC = () => {
             key={link.path}
             to={link.path}
             end={link.path === '/admin' || link.path === '/dashboard'}
+            onClick={onClose}
             style={({ isActive }) => ({
               display: 'flex',
               alignItems: 'center',

@@ -33,110 +33,108 @@ const AdminSiteVisitsPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  const filteredEmployees = employees.filter(e => 
+  const filteredEmployees = employees.filter(e =>
     (e.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (e.employeeId?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   const filteredVisits = visits.filter(v => {
     if (selectedUserId && String(v.user?._id) !== String(selectedUserId)) return false;
-    
+
     const search = searchTerm.toLowerCase();
-    return (v.user?.name?.toLowerCase() || '').includes(search) || 
-           (v.customer?.name?.toLowerCase() || '').includes(search) || 
-           (v.customer?.company?.toLowerCase() || '').includes(search) || 
-           (v.user?.employeeId?.toLowerCase() || '').includes(search);
+    return (v.user?.name?.toLowerCase() || '').includes(search) ||
+      (v.customer?.name?.toLowerCase() || '').includes(search) ||
+      (v.customer?.company?.toLowerCase() || '').includes(search) ||
+      (v.user?.employeeId?.toLowerCase() || '').includes(search);
   });
 
   if (loading) return <div style={{ padding: '40px' }}>Loading...</div>;
 
   return (
-    <div style={{ padding: '40px' }}>
-      <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <h1 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Site Visit Logs</h1>
+    <div>
+      <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px', flexWrap: 'wrap' }}>
+        <div style={{ flex: '1', minWidth: 0 }}>
+          <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Site Visit Logs</h1>
           <p style={{ color: 'var(--text-muted)' }}>Monitor all employee site visits and client interactions.</p>
         </div>
-        
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div style={{ position: 'relative', width: '300px' }}>
+
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', width: '100%', maxWidth: 'max-content' }} className="admin-header-actions">
+          <div style={{ position: 'relative', flex: '1', minWidth: '0' }} className="admin-search-bar">
             <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input 
-              type="text" 
-              placeholder="Search by name, ID or customer..." 
+            <input
+              type="text"
+              placeholder="Search by name, ID or customer..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: '100%', padding: '10px 10px 10px 40px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)' }}
+              style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '14px' }}
             />
           </div>
         </div>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '32px' }}>
-        {/* Left Pane: Employee List */}
-        <div className="glass-card" style={{ padding: '24px', height: 'calc(100vh - 200px)', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '40px', alignItems: 'start' }}>
+        {/* Top/Left Pane: Employee List */}
+        <div className="glass-card employee-selection-pane" style={{ padding: '24px', maxHeight: '300px', overflowY: 'visible', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Users size={20} color="var(--primary)" />
-                <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Employees</h3>
-             </div>
-             <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-muted)', backgroundColor: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px' }}>
-               {filteredEmployees.length}
-             </span>
-          </div>
-          
-          <div 
-            onClick={() => setSelectedUserId(null)}
-            style={{ 
-              padding: '12px 16px', 
-              borderRadius: '12px', 
-              cursor: 'pointer',
-              backgroundColor: selectedUserId === null ? 'var(--primary)' : 'var(--surface)',
-              color: selectedUserId === null ? 'white' : 'var(--text-main)',
-              fontWeight: selectedUserId === null ? 700 : 600,
-              transition: 'all 0.2s ease',
-              marginBottom: '12px',
-              textAlign: 'center',
-              border: selectedUserId === null ? 'none' : '1px solid var(--border)',
-              flexShrink: 0
-            }}
-          >
-            All Visit Logs
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Users size={20} color="var(--primary)" />
+              <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Employees</h3>
+            </div>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-muted)', backgroundColor: 'rgba(0,0,0,0.05)', padding: '2px 8px', borderRadius: '4px' }}>
+              {filteredEmployees.length}
+            </span>
           </div>
 
-          <div className="custom-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto' }}>
+          <div className="custom-scrollbar" style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '20px' }}>
+            <div
+              onClick={() => setSelectedUserId(null)}
+              style={{
+                padding: '10px 20px',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                backgroundColor: selectedUserId === null ? 'var(--primary)' : 'var(--surface)',
+                color: selectedUserId === null ? 'white' : 'var(--text-main)',
+                fontWeight: 700,
+                transition: 'all 0.2s ease',
+                border: selectedUserId === null ? 'none' : '1px solid var(--border)',
+                whiteSpace: 'nowrap',
+                fontSize: '13px'
+              }}
+            >
+              All Visit Logs
+            </div>
+
             {filteredEmployees.map(u => (
-              <div 
+              <div
                 key={u._id}
                 onClick={() => setSelectedUserId(u._id)}
-                style={{ 
-                  padding: '12px 16px', 
-                  borderRadius: '12px', 
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '10px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
-                  backgroundColor: selectedUserId === u._id ? 'rgba(0, 102, 255, 0.1)' : 'transparent',
+                  gap: '10px',
+                  backgroundColor: selectedUserId === u._id ? 'rgba(0, 102, 255, 0.1)' : 'var(--surface)',
                   color: selectedUserId === u._id ? 'var(--primary)' : 'var(--text-main)',
                   transition: 'all 0.2s ease',
                   border: '1px solid',
-                  borderColor: selectedUserId === u._id ? 'rgba(0, 102, 255, 0.3)' : 'transparent'
+                  borderColor: selectedUserId === u._id ? 'rgba(0, 102, 255, 0.3)' : 'var(--border)',
+                  whiteSpace: 'nowrap',
+                  fontSize: '13px'
                 }}
               >
-                 <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: selectedUserId === u._id ? 'var(--primary)' : 'var(--surface)', color: selectedUserId === u._id ? 'white' : 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 700 }}>
-                     {(u.name || 'E').charAt(0)}
-                 </div>
-                 <div style={{ minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: '14px', fontWeight: selectedUserId === u._id ? 700 : 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</p>
-                    <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-muted)' }}>{u.designation || u.role} | #{u.employeeId}</p>
-                 </div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: selectedUserId === u._id ? 'var(--primary)' : 'rgba(0,0,0,0.05)', color: selectedUserId === u._id ? 'white' : 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
+                  {(u.name || 'E').charAt(0)}
+                </div>
+                <span style={{ fontWeight: 600 }}>{u.name}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right Pane: Visits Table */}
-        <div className="glass-card" style={{ padding: '0', height: 'fit-content' }}>
+        {/* Bottom Pane: Visits Table */}
+        <div className="glass-card table-wrap" style={{ padding: '0', height: 'fit-content' }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -171,8 +169,8 @@ const AdminSiteVisitsPage: React.FC = () => {
                     </td>
                     <td style={{ padding: '20px 24px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                         <User size={14} color="var(--text-muted)" />
-                         <span style={{ fontSize: '13px', fontWeight: 600 }}>{v.contactPersonName}</span>
+                        <User size={14} color="var(--text-muted)" />
+                        <span style={{ fontSize: '13px', fontWeight: 600 }}>{v.contactPersonName}</span>
                       </div>
                       <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '22px' }}>{v.contactPersonDesignation} | {v.contactPersonMobile}</p>
                     </td>

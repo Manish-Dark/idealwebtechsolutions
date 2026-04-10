@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Calendar as CalendarIcon, Briefcase, PartyPopper } from 'lucide-react';
+import { Calendar as CalendarIcon, Briefcase } from 'lucide-react';
 
 const HolidaysPage: React.FC = () => {
   const { user } = useAuth();
@@ -29,12 +29,9 @@ const HolidaysPage: React.FC = () => {
   if (loading) return <div style={{ padding: '40px' }}>Loading holiday calendar...</div>;
 
   return (
-    <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
-      <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(0, 102, 255, 0.1)', color: 'var(--primary)', marginBottom: '16px' }}>
-          <PartyPopper size={32} />
-        </div>
-        <h1 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Company Holidays</h1>
+    <div style={{ padding: '0px' }}>
+      <header style={{ marginBottom: '40px' }}>
+        <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Company Holidays</h1>
         <p style={{ color: 'var(--text-muted)' }}>Check out your upcoming designated days off and corporate events.</p>
       </header>
 
@@ -51,7 +48,9 @@ const HolidaysPage: React.FC = () => {
                 justifyContent: 'space-between', 
                 padding: '24px',
                 opacity: isPast ? 0.6 : 1,
-                borderLeft: isPast ? '4px solid var(--border)' : `4px solid ${h.type === 'Restricted' ? 'var(--warning)' : 'var(--primary)'}`
+                borderLeft: isPast ? '4px solid var(--border)' : `4px solid ${h.type === 'Restricted' ? 'var(--warning)' : 'var(--primary)'}`,
+                flexWrap: 'wrap',
+                gap: '20px'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>

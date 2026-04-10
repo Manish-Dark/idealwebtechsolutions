@@ -47,13 +47,13 @@ const TasksPage: React.FC = () => {
   if (loading) return <div style={{ padding: '40px' }}>Loading your tasks...</div>;
 
   return (
-    <div style={{ padding: '40px' }}>
+    <div>
       <header style={{ marginBottom: '40px' }}>
         <h1 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>My Assignments</h1>
         <p style={{ color: 'var(--text-muted)' }}>Manage your assigned tasks and report your ongoing completion progress.</p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 360px), 1fr))', gap: '24px' }}>
         {tasks.map(t => (
           <div key={t._id} className="glass-card" style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>

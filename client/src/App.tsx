@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeContextProvider } from './context/ThemeContext';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
@@ -25,9 +25,11 @@ import ConveyancePage from './pages/ConveyancePage';
 import AdminConveyancePage from './pages/AdminConveyancePage';
 import SiteVisitsPage from './pages/SiteVisitsPage';
 import AdminSiteVisitsPage from './pages/AdminSiteVisitsPage';
+import { Menu } from 'lucide-react';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string }> = ({ children, role }) => {
   const { user, loading } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg)' }}>
@@ -46,13 +48,65 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string }> = (
   }
 
   return (
-    <div style={{ display: 'flex', backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
-      <Sidebar />
-      <div style={{ marginLeft: '260px', width: 'calc(100% - 260px)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <main style={{ flex: 1 }}>
+    <div className="app-layout" style={{ display: 'flex', backgroundColor: 'var(--bg)', minHeight: '100vh', position: 'relative' }}>
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      
+      <div className="app-layout-content" style={{ flex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column', transition: 'all 0.3s ease' }}>
+        {/* Mobile Header */}
+        <div style={{
+          height: 'var(--header-height)',
+          width: '100%',
+          background: 'var(--surface)',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 20px',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 80,
+          boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+        }} className="mobile-only-flex">
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            style={{
+              background: 'var(--primary-light)',
+              border: 'none',
+              borderRadius: '10px',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--primary)',
+              cursor: 'pointer',
+            }}
+          >
+            <Menu size={20} />
+          </button>
+          <div style={{ marginLeft: '16px', fontWeight: 800, color: 'var(--primary)', fontSize: '18px' }}>CMS</div>
+        </div>
+
+        <main className="main-layout" style={{ 
+          flex: 1, 
+          marginLeft: 'var(--sidebar-width)',
+          width: 'calc(100% - var(--sidebar-width))',
+          transition: 'all 0.3s ease',
+          padding: 'var(--page-padding)'
+        }}>
           {children}
         </main>
-        <Footer />
+        <div style={{ marginLeft: 'var(--sidebar-width)', transition: 'all 0.3s ease' }}>
+          <Footer />
+        </div>
       </div>
     </div>
   );
@@ -60,7 +114,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string }> = (
 
 function App() {
   return (
-    <ThemeProvider>
+    <ThemeContextProvider>
       <AuthProvider>
         <Router>
         <Routes>
@@ -132,6 +186,48 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/attendance" element={
+            <ProtectedRoute role="user">
+              <AttendancePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/leaves" element={
+            <ProtectedRoute role="user">
+              <LeavesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/tasks" element={
+            <ProtectedRoute role="user">
+              <TasksPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/holidays" element={
+            <ProtectedRoute role="user">
+              <HolidaysPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/salary" element={
+            <ProtectedRoute role="user">
+              <UserSalaryPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/conveyance" element={
+            <ProtectedRoute role="user">
+              <ConveyancePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/site-visits" element={
+            <ProtectedRoute role="user">
+              <SiteVisitsPage />
+            </ProtectedRoute>
+          } />
+
           <Route path="/dashboard" element={
             <ProtectedRoute role="user">
               <UserDashboard />
@@ -144,49 +240,11 @@ function App() {
             </ProtectedRoute>
           } />
 
-          {/* Placeholder routes for future implementation */}
-          <Route path="/site-visits" element={
-            <ProtectedRoute role="user">
-              <SiteVisitsPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/attendance" element={
-            <ProtectedRoute role="user">
-              <AttendancePage />
-            </ProtectedRoute>
-          } />
-          <Route path="/leaves" element={
-            <ProtectedRoute role="user">
-              <LeavesPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/tasks" element={
-            <ProtectedRoute role="user">
-              <TasksPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/holidays" element={
-            <ProtectedRoute role="user">
-              <HolidaysPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/salary" element={
-            <ProtectedRoute role="user">
-              <UserSalaryPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/conveyance" element={
-            <ProtectedRoute role="user">
-              <ConveyancePage />
-            </ProtectedRoute>
-          } />
-          <Route path="/site-visits" element={<ProtectedRoute><div style={{ padding: '40px' }}><h1>Site Visit Logs</h1></div></ProtectedRoute>} />
-
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
         </Router>
       </AuthProvider>
-    </ThemeProvider>
+    </ThemeContextProvider>
   );
 }
 

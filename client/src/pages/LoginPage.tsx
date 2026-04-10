@@ -99,7 +99,17 @@ const LoginPage: React.FC = () => {
                 onChange={e => setLoginId(e.target.value)}
                 placeholder="ADM001 or PI001"
                 required
-                style={{ width: '100%', paddingLeft: '44px', height: '50px', borderRadius: '12px', fontSize: '15px', border: '1.5px solid rgba(99,102,241,0.15)', background: '#F5F3FF', color: 'var(--text-main)' }}
+                style={{ 
+                  width: '100%', 
+                  paddingLeft: '44px', 
+                  height: '50px', 
+                  borderRadius: '12px', 
+                  fontSize: '15px', 
+                  border: '1.5px solid var(--border)', 
+                  background: 'var(--surface-2)', 
+                  color: 'var(--text-main)',
+                  transition: 'all 0.2s ease'
+                }}
               />
             </div>
           </div>
@@ -117,7 +127,18 @@ const LoginPage: React.FC = () => {
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                style={{ width: '100%', paddingLeft: '44px', paddingRight: '44px', height: '50px', borderRadius: '12px', fontSize: '15px', border: '1.5px solid rgba(99,102,241,0.15)', background: '#F5F3FF', color: 'var(--text-main)' }}
+                style={{ 
+                  width: '100%', 
+                  paddingLeft: '44px', 
+                  paddingRight: '44px', 
+                  height: '50px', 
+                  borderRadius: '12px', 
+                  fontSize: '15px', 
+                  border: '1.5px solid var(--border)', 
+                  background: 'var(--surface-2)', 
+                  color: 'var(--text-main)',
+                  transition: 'all 0.2s ease'
+                }}
               />
               <button
                 type="button"

@@ -31,7 +31,7 @@ const UserSalaryPage: React.FC = () => {
 
   const handleDownloadPDF = async () => {
     if (!slipRef.current || !selectedSlip) return;
-    
+
     try {
       setIsGeneratingPDF(true);
       const element = slipRef.current;
@@ -40,14 +40,14 @@ const UserSalaryPage: React.FC = () => {
         useCORS: true,
         backgroundColor: '#ffffff'
       });
-      
+
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      
+
       const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
+
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`SalarySlip_${selectedSlip.month}_${selectedSlip.year}.pdf`);
       setIsGeneratingPDF(false);
@@ -71,16 +71,16 @@ const UserSalaryPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '0px' }}>
       <header style={{ marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>My Salary Slips</h1>
+        <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>My Salary Slips</h1>
         <p style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Briefcase size={16} /> {user?.designation || 'Employee'}
         </p>
       </header>
 
       {/* Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '40px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px', marginBottom: '40px' }}>
         <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '24px' }}>
           <div style={{ width: '60px', height: '60px', backgroundColor: 'rgba(0, 102, 255, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
             <FileText size={32} />
@@ -107,54 +107,92 @@ const UserSalaryPage: React.FC = () => {
         <div style={{ padding: '24px', borderBottom: '1px solid var(--border)' }}>
           <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Salary History</h3>
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase' }}>
-                <th style={{ padding: '16px 24px' }}>Period</th>
-                <th style={{ padding: '16px 24px' }}>Paid Days</th>
-                <th style={{ padding: '16px 24px' }}>Net Salary</th>
-                <th style={{ padding: '16px 24px' }}>Status</th>
-                <th style={{ padding: '16px 24px', textAlign: 'right' }}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {salarySlips.map((slip) => (
-                <tr key={slip._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: 600 }}>{slip.month} {slip.year}</td>
-                  <td style={{ padding: '16px 24px', fontSize: '14px', color: 'var(--text-main)', fontWeight: 600 }}>{slip.presentDays || 0}/{slip.paidDays || 0}</td>
-                  <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: 700, color: 'var(--success)' }}>₹{slip.netSalary?.toLocaleString()}</td>
-                  <td style={{ padding: '16px 24px' }}>
-                    <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 700 }}>{slip.status}</span>
-                  </td>
-                  <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                    <button 
-                      onClick={() => setSelectedSlip(slip)}
-                      style={{ 
-                        padding: '8px 16px', 
-                        backgroundColor: 'var(--surface)', 
-                        border: '1px solid var(--border)', 
-                        borderRadius: '8px', 
-                        cursor: 'pointer', 
-                        fontWeight: 600,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        color: 'var(--primary)'
-                      }}
-                    >
-                      <Eye size={16} /> View Slip
-                    </button>
-                  </td>
+        <div className="user-sal-table-container">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '16px 24px' }}>Period</th>
+                  <th style={{ padding: '16px 24px' }}>Paid Days</th>
+                  <th style={{ padding: '16px 24px' }}>Net Salary</th>
+                  <th style={{ padding: '16px 24px' }}>Status</th>
+                  <th style={{ padding: '16px 24px', textAlign: 'right' }}>Action</th>
                 </tr>
-              ))}
-              {salarySlips.length === 0 && (
-                <tr>
-                  <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No salary records available.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {salarySlips.map((slip) => (
+                  <tr key={slip._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: 600 }}>{slip.month} {slip.year}</td>
+                    <td style={{ padding: '16px 24px', fontSize: '14px', color: 'var(--text-main)', fontWeight: 600 }}>{slip.presentDays || 0}/{slip.paidDays || 0}</td>
+                    <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: 700, color: 'var(--success)' }}>₹{slip.netSalary?.toLocaleString()}</td>
+                    <td style={{ padding: '16px 24px' }}>
+                      <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 700 }}>{slip.status}</span>
+                    </td>
+                    <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                      <button
+                        onClick={() => setSelectedSlip(slip)}
+                        style={{
+                          padding: '8px 16px',
+                          backgroundColor: 'var(--surface)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          color: 'var(--primary)'
+                        }}
+                      >
+                        <Eye size={16} /> View Slip
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {salarySlips.length === 0 && (
+                  <tr>
+                    <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No salary records available.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Mobile View: Salary Cards */}
+        <div className="user-sal-mobile-cards">
+          {salarySlips.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No records available.</div>
+          ) : (
+            salarySlips.map((slip) => (
+              <div key={slip._id} className="user-sal-item-card animate-scale">
+                <div className="user-sal-card-header">
+                  <span className="user-sal-card-period">{slip.month} {slip.year}</span>
+                  <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 700 }}>{slip.status}</span>
+                </div>
+
+                <div className="user-sal-card-grid">
+                  <div className="user-sal-grid-item">
+                    <span className="user-sal-grid-label">Paid Days</span>
+                    <span className="user-sal-grid-value">{slip.presentDays || 0}/{slip.paidDays || 0}</span>
+                  </div>
+                  <div className="user-sal-grid-item">
+                    <span className="user-sal-grid-label">Net Salary</span>
+                    <span className="user-sal-grid-value" style={{ color: 'var(--success)' }}>₹{slip.netSalary?.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div className="user-sal-card-footer">
+                  <button
+                    onClick={() => setSelectedSlip(slip)}
+                    style={{ width: '100%', padding: '12px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  >
+                    <Eye size={18} /> View & Download Slip
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -169,16 +207,16 @@ const UserSalaryPage: React.FC = () => {
                 <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{selectedSlip.month} {selectedSlip.year}</p>
               </div>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <button 
+                <button
                   onClick={handleDownloadPDF}
                   disabled={isGeneratingPDF}
-                  style={{ 
-                    padding: '10px 20px', 
-                    backgroundColor: 'var(--primary)', 
-                    color: 'white', 
-                    border: 'none', 
-                    borderRadius: '10px', 
-                    fontWeight: 700, 
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: 'var(--primary)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontWeight: 700,
                     cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -204,29 +242,29 @@ const UserSalaryPage: React.FC = () => {
                   <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: 600 }}>{selectedSlip.month.toUpperCase()} {selectedSlip.year}</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                   <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>Employee ID: #{user?.employeeId}</p>
-                   <p style={{ fontSize: '13px', color: '#6b7280' }}>Status: {selectedSlip.status}</p>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>Employee ID: #{user?.employeeId}</p>
+                  <p style={{ fontSize: '13px', color: '#6b7280' }}>Status: {selectedSlip.status}</p>
                 </div>
               </div>
 
               {/* Employee Details Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', marginBottom: '40px' }}>
-                 <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
-                    <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Employee Name</p>
-                    <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{user?.name}</p>
-                 </div>
-                 <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
-                    <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Designation</p>
-                    <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{selectedSlip.designation || user?.designation || 'N/A'}</p>
-                 </div>
-                 <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
-                    <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Department</p>
-                    <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{selectedSlip.department || user?.department || 'N/A'}</p>
-                 </div>
-                 <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
-                    <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Pay Period</p>
-                    <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{selectedSlip.month} {selectedSlip.year}</p>
-                 </div>
+                <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
+                  <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Employee Name</p>
+                  <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{user?.name}</p>
+                </div>
+                <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
+                  <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Designation</p>
+                  <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{selectedSlip.designation || user?.designation || 'N/A'}</p>
+                </div>
+                <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
+                  <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Department</p>
+                  <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{selectedSlip.department || user?.department || 'N/A'}</p>
+                </div>
+                <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
+                  <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Pay Period</p>
+                  <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{selectedSlip.month} {selectedSlip.year}</p>
+                </div>
               </div>
 
               {/* Earnings & Deductions Table */}
@@ -268,39 +306,39 @@ const UserSalaryPage: React.FC = () => {
 
               {/* Net Payable Banner */}
               <div style={{ padding: '24px', backgroundColor: '#111827', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                 <div>
-                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>NET SALARY PAYABLE</p>
-                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>Final amount credited to account</p>
-                 </div>
-                 <div style={{ fontSize: '32px', fontWeight: 900, color: '#60a5fa' }}>
-                    ₹{selectedSlip.netSalary?.toLocaleString() || 0}
-                 </div>
+                <div>
+                  <p style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>NET SALARY PAYABLE</p>
+                  <p style={{ fontSize: '12px', color: '#9ca3af' }}>Final amount credited to account</p>
+                </div>
+                <div style={{ fontSize: '32px', fontWeight: 900, color: '#60a5fa' }}>
+                  ₹{selectedSlip.netSalary?.toLocaleString() || 0}
+                </div>
               </div>
 
               {/* Attendance Summary - MOVED TO BOTTOM AS REQUESTED */}
               <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '30px' }}>
                 <h4 style={{ fontSize: '11px', fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', marginBottom: '15px' }}>Attendance Summary</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
-                   <div style={{ textAlign: 'center', backgroundColor: '#f0fdf4', padding: '12px 8px', borderRadius: '12px', border: '1px solid #dcfce7' }}>
-                      <p style={{ fontSize: '16px', fontWeight: 800, color: '#16a34a' }}>{selectedSlip.presentDays || 0}</p>
-                      <p style={{ fontSize: '10px', color: '#166534', fontWeight: 700, textTransform: 'uppercase' }}>Present</p>
-                   </div>
-                   <div style={{ textAlign: 'center', backgroundColor: '#fef2f2', padding: '12px 8px', borderRadius: '12px', border: '1px solid #fee2e2' }}>
-                      <p style={{ fontSize: '16px', fontWeight: 800, color: '#dc2626' }}>{selectedSlip.absentDays || 0}</p>
-                      <p style={{ fontSize: '10px', color: '#991b1b', fontWeight: 700, textTransform: 'uppercase' }}>Absent</p>
-                   </div>
-                   <div style={{ textAlign: 'center', backgroundColor: '#fffbeb', padding: '12px 8px', borderRadius: '12px', border: '1px solid #fef3c7' }}>
-                      <p style={{ fontSize: '16px', fontWeight: 800, color: '#d97706' }}>{selectedSlip.leaveDays || 0}</p>
-                      <p style={{ fontSize: '10px', color: '#92400e', fontWeight: 700, textTransform: 'uppercase' }}>Leave</p>
-                   </div>
-                   <div style={{ textAlign: 'center', backgroundColor: '#eff6ff', padding: '12px 8px', borderRadius: '12px', border: '1px solid #dbeafe' }}>
-                      <p style={{ fontSize: '16px', fontWeight: 800, color: '#2563eb' }}>{selectedSlip.halfDays || 0}</p>
-                      <p style={{ fontSize: '10px', color: '#1e40af', fontWeight: 700, textTransform: 'uppercase' }}>Half Day</p>
-                   </div>
-                   <div style={{ textAlign: 'center', backgroundColor: '#111827', padding: '12px 8px', borderRadius: '12px', border: '1px solid #374151' }}>
-                      <p style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>{selectedSlip.presentDays || 0}/{selectedSlip.paidDays || 0}</p>
-                      <p style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Total Paid</p>
-                   </div>
+                  <div style={{ textAlign: 'center', backgroundColor: '#f0fdf4', padding: '12px 8px', borderRadius: '12px', border: '1px solid #dcfce7' }}>
+                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#16a34a' }}>{selectedSlip.presentDays || 0}</p>
+                    <p style={{ fontSize: '10px', color: '#166534', fontWeight: 700, textTransform: 'uppercase' }}>Present</p>
+                  </div>
+                  <div style={{ textAlign: 'center', backgroundColor: '#fef2f2', padding: '12px 8px', borderRadius: '12px', border: '1px solid #fee2e2' }}>
+                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#dc2626' }}>{selectedSlip.absentDays || 0}</p>
+                    <p style={{ fontSize: '10px', color: '#991b1b', fontWeight: 700, textTransform: 'uppercase' }}>Absent</p>
+                  </div>
+                  <div style={{ textAlign: 'center', backgroundColor: '#fffbeb', padding: '12px 8px', borderRadius: '12px', border: '1px solid #fef3c7' }}>
+                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#d97706' }}>{selectedSlip.leaveDays || 0}</p>
+                    <p style={{ fontSize: '10px', color: '#92400e', fontWeight: 700, textTransform: 'uppercase' }}>Leave</p>
+                  </div>
+                  <div style={{ textAlign: 'center', backgroundColor: '#eff6ff', padding: '12px 8px', borderRadius: '12px', border: '1px solid #dbeafe' }}>
+                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#2563eb' }}>{selectedSlip.halfDays || 0}</p>
+                    <p style={{ fontSize: '10px', color: '#1e40af', fontWeight: 700, textTransform: 'uppercase' }}>Half Day</p>
+                  </div>
+                  <div style={{ textAlign: 'center', backgroundColor: '#111827', padding: '12px 8px', borderRadius: '12px', border: '1px solid #374151' }}>
+                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>{selectedSlip.presentDays || 0}/{selectedSlip.paidDays || 0}</p>
+                    <p style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Total Paid</p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -46,23 +46,23 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  if (!profile) return <div style={{ padding: '40px' }}>Loading...</div>;
+  if (!profile) return <div style={{ padding: 'var(--page-padding)' }}>Loading...</div>;
 
   return (
-    <div style={{ padding: '40px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 700 }}>My Profile</h1>
+    <div>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+        <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 700 }}>My Profile</h1>
         <button 
            onClick={() => setShowPasswordModal(true)}
-           style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)', cursor: 'pointer', fontWeight: 600 }}
+           style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface)', cursor: 'pointer', fontWeight: 700, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
         >
           <Lock size={18} />
           Change Password
         </button>
       </div>
       
-      <div className="glass-card" style={{ maxWidth: '800px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '40px', paddingBottom: '32px', borderBottom: '1px solid var(--border)' }}>
+      <div className="glass-card profile-card" style={{ padding: '40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '40px', paddingBottom: '32px', borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
           <div style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', fontWeight: 700 }}>
             {profile.name.charAt(0)}
           </div>
@@ -72,7 +72,7 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '40px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
              <h3 style={{ fontSize: '14px', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Work Information</h3>
              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

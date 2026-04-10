@@ -11,7 +11,7 @@ const AttendancePage: React.FC = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [leaves, setLeaves] = useState<any[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
-  
+
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
 
@@ -25,7 +25,7 @@ const AttendancePage: React.FC = () => {
       const historyData = attRes.data;
       const leavesData = leavesRes.data || [];
       setLeaves(leavesData);
-      
+
       if (Array.isArray(historyData)) {
         let mergedHistory = [...historyData];
 
@@ -60,9 +60,9 @@ const AttendancePage: React.FC = () => {
         const todayRecord = historyData.find((a: any) => {
           if (!a || !a.date) return false;
           const d = new Date(a.date);
-          return d.getDate() === today.getDate() && 
-                 d.getMonth() === today.getMonth() && 
-                 d.getFullYear() === today.getFullYear();
+          return d.getDate() === today.getDate() &&
+            d.getMonth() === today.getMonth() &&
+            d.getFullYear() === today.getFullYear();
         });
         setTodayAttendance(todayRecord);
       } else {
@@ -83,7 +83,7 @@ const AttendancePage: React.FC = () => {
   const handleAttendance = async (type: 'check-in' | 'check-out') => {
     try {
       const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      
+
       let location = null;
       if (navigator.geolocation) {
         try {
@@ -122,11 +122,11 @@ const AttendancePage: React.FC = () => {
   const exportPDF = () => {
     const doc = new jsPDF();
     doc.text('My Attendance History', 14, 15);
-    
+
     const tableData = filteredHistory.map((record: any) => [
       new Date(record.date).toLocaleDateString(),
-      record.checkIn ? new Date(record.checkIn).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '---',
-      record.checkOut ? new Date(record.checkOut).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--',
+      record.checkIn ? new Date(record.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '---',
+      record.checkOut ? new Date(record.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--',
       record.status,
       calculateHours(record.checkIn, record.checkOut)
     ]);
@@ -166,13 +166,13 @@ const AttendancePage: React.FC = () => {
     if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && h.checkIn) {
       const checkInTime = new Date(h.checkIn);
       const isAfter12pm = checkInTime.getHours() >= 12;
-      
+
       let durationLessThan5 = false;
       if (h.checkOut) {
         const diff = new Date(h.checkOut).getTime() - new Date(h.checkIn).getTime();
         durationLessThan5 = (diff / (1000 * 60 * 60)) < 5;
       }
-      
+
       return isAfter12pm || durationLessThan5;
     }
     return false;
@@ -192,31 +192,31 @@ const AttendancePage: React.FC = () => {
   }, 0);
 
   return (
-    <div style={{ padding: '40px' }}>
-      <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Attendance Management</h1>
+    <div className="attendance-page-container" style={{ padding: 'var(--page-padding)' }}>
+      <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+        <div style={{ flex: '1', minWidth: 0 }}>
+          <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Attendance Management</h1>
           <p style={{ color: 'var(--text-muted)' }}>{currentTime.toLocaleTimeString()} | {currentTime.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
-        <div style={{ display: 'flex', gap: '16px' }}>
+        <div style={{ display: 'flex', gap: '16px' }} className="admin-header-actions">
           {!todayAttendance ? (
-            <button 
+            <button
               onClick={() => handleAttendance('check-in')}
-              style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(0, 102, 255, 0.3)' }}
+              style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(0, 102, 255, 0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.2s ease' }}
             >
               <LogIn size={20} />
               Check In
             </button>
           ) : !todayAttendance.checkOut ? (
-            <button 
+            <button
               onClick={() => handleAttendance('check-out')}
-              style={{ backgroundColor: 'var(--error)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)' }}
+              style={{ backgroundColor: '#ef4444', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.2s ease' }}
             >
               <LogOut size={20} />
               Check Out
             </button>
           ) : (
-            <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', padding: '12px 24px', borderRadius: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '12px 24px', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
               <CheckCircle size={20} />
               Day Completed
             </div>
@@ -225,7 +225,7 @@ const AttendancePage: React.FC = () => {
       </header>
 
       {/* 4 Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '40px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '24px', marginBottom: '40px' }}>
         <div className="glass-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Sun size={24} />
@@ -235,7 +235,7 @@ const AttendancePage: React.FC = () => {
             <h3 style={{ fontSize: '28px', fontWeight: 800 }}>{presentCount}</h3>
           </div>
         </div>
-        
+
         <div className="glass-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Calendar size={24} />
@@ -268,94 +268,136 @@ const AttendancePage: React.FC = () => {
       </div>
 
       {/* Status Detail Card */}
-      <div className="glass-card" style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '32px' }}>
-        <div style={{ display: 'flex', gap: '40px' }}>
+      <div className="glass-card" style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '32px', flexWrap: 'wrap', gap: '24px' }}>
+        <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
           <div>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>My Status</p>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>My Status</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: todayAttendance && !todayAttendance.checkOut ? 'var(--success)' : 'var(--text-muted)' }}></div>
-              <span style={{ fontWeight: 700, fontSize: '18px' }}>{todayAttendance && !todayAttendance.checkOut ? 'On Duty' : 'Off Duty'}</span>
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: todayAttendance && !todayAttendance.checkOut ? '#10B981' : 'var(--text-muted)', boxShadow: todayAttendance && !todayAttendance.checkOut ? '0 0 10px rgba(16, 185, 129, 0.4)' : 'none' }}></div>
+              <span style={{ fontWeight: 800, fontSize: '18px' }}>{todayAttendance && !todayAttendance.checkOut ? 'On Duty' : 'Off Duty'}</span>
             </div>
           </div>
           <div>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>Check In</p>
-            <p style={{ fontWeight: 700, fontSize: '18px' }}>{todayAttendance?.checkIn ? new Date(todayAttendance.checkIn).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}</p>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>Check In</p>
+            <p style={{ fontWeight: 800, fontSize: '18px' }}>{todayAttendance?.checkIn ? new Date(todayAttendance.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</p>
           </div>
           <div>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>Check Out</p>
-            <p style={{ fontWeight: 700, fontSize: '18px' }}>{todayAttendance?.checkOut ? new Date(todayAttendance.checkOut).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}</p>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>Check Out</p>
+            <p style={{ fontWeight: 800, fontSize: '18px' }}>{todayAttendance?.checkOut ? new Date(todayAttendance.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</p>
           </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <p style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>Duration Today</p>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--primary)' }}>{calculateHours(todayAttendance?.checkIn, todayAttendance?.checkOut)}</h2>
+        <div style={{ textAlign: 'right', minWidth: '150px' }}>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>Duration Today</p>
+          <h2 style={{ fontSize: '36px', fontWeight: 900, color: 'var(--primary)', letterSpacing: '-0.02em' }}>{calculateHours(todayAttendance?.checkIn, todayAttendance?.checkOut)}</h2>
         </div>
       </div>
 
       <div className="glass-card" style={{ padding: '0' }}>
-        <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Activity size={20} color="var(--primary)" />
             <h3 style={{ fontSize: '20px', fontWeight: 700 }}>Attendance History</h3>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <label style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>From:</label>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '13px' }}
+                style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '13px', color: 'var(--text-main)' }}
               />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <label style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>To:</label>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
-                style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '13px' }}
+                style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '13px', color: 'var(--text-main)' }}
               />
             </div>
-            <button 
+            <button
               onClick={exportPDF}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--surface)', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--surface)', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: 'var(--text-main)', transition: 'all 0.2s ease' }}
             >
               <Download size={16} />
               Export PDF
             </button>
           </div>
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase' }}>
-                <th style={{ padding: '16px 24px' }}>Date</th>
-                <th style={{ padding: '16px 24px' }}>Check In</th>
-                <th style={{ padding: '16px 24px' }}>Check Out</th>
-                <th style={{ padding: '16px 24px' }}>Status</th>
-                <th style={{ padding: '16px 24px' }}>Hours Worked</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredHistory.map((record: any) => (
-                <tr key={record._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '16px 24px', fontWeight: 600 }}>{new Date(record.date).toLocaleDateString()}</td>
-                  <td style={{ padding: '16px 24px', color: 'var(--success)' }}>{record.checkIn ? new Date(record.checkIn).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '---'}</td>
-                  <td style={{ padding: '16px 24px', color: 'var(--error)' }}>{record.checkOut ? new Date(record.checkOut).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}</td>
-                  <td style={{ padding: '16px 24px' }}>
-                    <span style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 600 }}>{record.status}</span>
-                  </td>
-                  <td style={{ padding: '16px 24px', fontWeight: 700 }}>{calculateHours(record.checkIn, record.checkOut)}</td>
+        <div className="attendance-table-container">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '16px 24px' }}>Date</th>
+                  <th style={{ padding: '16px 24px' }}>Check In</th>
+                  <th style={{ padding: '16px 24px' }}>Check Out</th>
+                  <th style={{ padding: '16px 24px' }}>Status</th>
+                  <th style={{ padding: '16px 24px' }}>Hours Worked</th>
                 </tr>
-              ))}
-              {filteredHistory.length === 0 && (
-                <tr>
-                  <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>No records found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredHistory.map((record: any) => (
+                  <tr key={record._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '16px 24px', fontWeight: 600 }}>{new Date(record.date).toLocaleDateString()}</td>
+                    <td style={{ padding: '16px 24px', color: 'var(--success)' }}>{record.checkIn ? new Date(record.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '---'}</td>
+                    <td style={{ padding: '16px 24px', color: 'var(--error)' }}>{record.checkOut ? new Date(record.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</td>
+                    <td style={{ padding: '16px 24px' }}>
+                      <span style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 600 }}>{record.status}</span>
+                    </td>
+                    <td style={{ padding: '16px 24px', fontWeight: 700 }}>{calculateHours(record.checkIn, record.checkOut)}</td>
+                  </tr>
+                ))}
+                {filteredHistory.length === 0 && (
+                  <tr>
+                    <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>No records found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Mobile View: Cards */}
+        <div className="att-mobile-cards">
+          {filteredHistory.map((record: any) => (
+            <div key={record._id} className="att-item-card animate-scale">
+              <div className="att-card-header">
+                <span className="att-card-date">{new Date(record.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                <span className="att-card-status" style={{
+                  color: record.checkIn ? '#10B981' : '#f59e0b',
+                  backgroundColor: record.checkIn ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)'
+                }}>
+                  {record.status}
+                </span>
+              </div>
+
+              <div className="att-card-grid">
+                <div className="att-grid-item">
+                  <span className="att-grid-label">Check In</span>
+                  <span className="att-grid-value" style={{ color: '#10B981' }}>
+                    {record.checkIn ? new Date(record.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '---'}
+                  </span>
+                </div>
+                <div className="att-grid-item">
+                  <span className="att-grid-label">Check Out</span>
+                  <span className="att-grid-value" style={{ color: '#ef4444' }}>
+                    {record.checkOut ? new Date(record.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="att-total-row">
+                <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Total Hours</span>
+                <span style={{ color: 'var(--primary)' }}>{calculateHours(record.checkIn, record.checkOut)}</span>
+              </div>
+            </div>
+          ))}
+          {filteredHistory.length === 0 && (
+            <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>No attendance history found.</div>
+          )}
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Megaphone, Bell, Calendar, Info, AlertTriangle } from 'lucide-react';
+import { Bell, Calendar, Info, AlertTriangle } from 'lucide-react';
 
 const NoticesPage: React.FC = () => {
   const { user } = useAuth();
@@ -38,12 +38,9 @@ const NoticesPage: React.FC = () => {
   if (loading) return <div style={{ padding: '40px' }}>Loading announcements...</div>;
 
   return (
-    <div style={{ padding: '40px', maxWidth: '900px', margin: '0 auto' }}>
-      <header style={{ marginBottom: '48px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '72px', height: '72px', borderRadius: '50%', backgroundColor: 'rgba(0, 102, 255, 0.1)', color: 'var(--primary)', marginBottom: '20px' }}>
-          <Megaphone size={36} />
-        </div>
-        <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>Corporate Notices</h1>
+    <div style={{ padding: '0px' }}>
+      <header style={{ marginBottom: '40px' }}>
+        <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>Corporate Notices</h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '16px' }}>Stay informed with the latest official announcements and policy updates.</p>
       </header>
 

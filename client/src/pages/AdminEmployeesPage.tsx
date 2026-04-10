@@ -53,13 +53,13 @@ const AdminEmployeesPage: React.FC = () => {
       await axios.post('http://localhost:5000/api/users', newEmployee, config);
       alert('Employee added successfully!');
       setShowAddModal(false);
-      setNewEmployee({ 
-        name: '', 
-        email: '', 
-        employeeId: '', 
-        password: '', 
-        role: 'user', 
-        department: 'Engineering', 
+      setNewEmployee({
+        name: '',
+        email: '',
+        employeeId: '',
+        password: '',
+        role: 'user',
+        department: 'Engineering',
         designation: 'Software Engineer',
         joiningDate: new Date().toISOString().split('T')[0],
         contactNumber: '',
@@ -100,32 +100,33 @@ const AdminEmployeesPage: React.FC = () => {
     }
   };
 
-  if (loading) return <div style={{ padding: '40px' }}>Loading...</div>;
+  if (loading) return <div style={{ padding: 'var(--page-padding, 40px)' }}>Loading...</div>;
 
   return (
-    <div style={{ padding: '40px' }}>
-      <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <h1 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Employee Management</h1>
+    <div>
+      <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px' }}>
+        <div style={{ flex: '1', minWidth: 0 }}>
+          <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Employee Management</h1>
           <p style={{ color: 'var(--text-muted)' }}>Add, remove, and manage your company employees.</p>
         </div>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, color: 'var(--success)' }}>
-            <div className="pulse-dot" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--success)' }}></div>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', width: '100%', maxWidth: 'max-content' }}>
+          <div className="status-pill status-pill--live">
+            <div className="pulse-dot" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981' }}></div>
             LIVE
           </div>
-          <button 
+          <button
             onClick={() => setShowAddModal(true)}
-            style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}
+            style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 102, 255, 0.2)' }}
           >
             <Plus size={20} />
-            Add Employee
+            <span className="hide-mobile">Add Employee</span>
+            <span className="show-mobile">Add</span>
           </button>
         </div>
       </header>
 
-      <div className="glass-card">
-        <div style={{ overflowX: 'auto' }}>
+      <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
+        <div className="emp-table-container" style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -163,21 +164,21 @@ const AdminEmployeesPage: React.FC = () => {
                   </td>
                   <td style={{ padding: '16px' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <button 
+                      <button
                         onClick={() => { setSelectedEmployee(emp); setShowDetailsModal(true); }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', color: 'var(--primary)', borderRadius: '8px', transition: 'all 0.2s' }}
                         title="View Full Profile"
                       >
                         <Eye size={18} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => { setEditEmployee(emp); setShowEditModal(true); }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', color: 'var(--success)', borderRadius: '8px', transition: 'all 0.2s' }}
                         title="Edit Employee"
                       >
                         <Edit2 size={18} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDeleteEmployee(emp._id, emp.name)}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', color: 'var(--error)', borderRadius: '8px', transition: 'all 0.2s' }}
                         title="Delete Employee"
@@ -191,52 +192,112 @@ const AdminEmployeesPage: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile View: Cards */}
+        <div className="emp-mobile-cards">
+          {employees.map((emp) => (
+            <div key={emp._id} className="emp-card animate-scale">
+              <div className="emp-card-header">
+                <div className="emp-card-avatar">{(emp.name || 'E').charAt(0)}</div>
+                <div className="emp-card-info">
+                  <span className="emp-card-name">{emp.name}</span>
+                  <span className="emp-card-id">#{emp.employeeId || 'N/A'}</span>
+                </div>
+                <div style={{ backgroundColor: 'rgba(0, 102, 255, 0.05)', color: 'var(--primary)', padding: '4px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 700 }}>
+                  {emp.department || 'General'}
+                </div>
+              </div>
+
+              <div className="emp-card-details">
+                <div className="emp-detail-item">
+                  <span className="emp-detail-label">Designation</span>
+                  <span className="emp-detail-value">{emp.designation || emp.role}</span>
+                </div>
+                <div className="emp-detail-item">
+                  <span className="emp-detail-label">Joined</span>
+                  <span className="emp-detail-value">{emp.joiningDate ? new Date(emp.joiningDate).toLocaleDateString() : 'N/A'}</span>
+                </div>
+                <div className="emp-detail-item" style={{ gridColumn: 'span 2' }}>
+                  <span className="emp-detail-label">Email</span>
+                  <span className="emp-detail-value" style={{ fontWeight: 500, color: 'var(--text-muted)' }}>{emp.email}</span>
+                </div>
+              </div>
+
+              <div className="emp-card-actions">
+                <button
+                  onClick={() => { setSelectedEmployee(emp); setShowDetailsModal(true); }}
+                  className="emp-action-btn"
+                  style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)' }}
+                >
+                  <Eye size={18} /> Profile
+                </button>
+                <button
+                  onClick={() => { setEditEmployee(emp); setShowEditModal(true); }}
+                  className="emp-action-btn"
+                  style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)' }}
+                >
+                  <Edit2 size={18} /> Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteEmployee(emp._id, emp.name)}
+                  className="emp-action-btn"
+                  style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)' }}
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          ))}
+          {employees.length === 0 && (
+            <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>No employees found.</div>
+          )}
+        </div>
       </div>
 
       {/* Add Employee Modal */}
       {showAddModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '700px', margin: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '750px', padding: '28px', maxHeight: '100%', overflowY: 'auto', borderRadius: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <div>
                 <h3 style={{ fontSize: '20px', fontWeight: 700 }}>Add New Employee</h3>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Fill in the details to create a new company account.</p>
               </div>
-              <button 
-                onClick={() => setShowAddModal(false)} 
+              <button
+                onClick={() => setShowAddModal(false)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
               >
                 <X size={24} />
               </button>
             </div>
-            
+
             <form onSubmit={handleAddEmployee} style={{ display: 'grid', gap: '20px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div className="responsive-grid-2">
                 {/* Basic Info */}
                 <div style={{ display: 'grid', gap: '16px' }}>
                   <h4 style={{ fontSize: '14px', fontWeight: 600, borderLeft: '3px solid var(--primary)', paddingLeft: '10px' }}>Basic Information</h4>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Full Name</label>
-                    <input type="text" required value={newEmployee.name} onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                    <input type="text" required value={newEmployee.name} onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Email Address</label>
-                    <input type="email" required value={newEmployee.email} onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                    <input type="email" required value={newEmployee.email} onChange={(e) => setNewEmployee({ ...newEmployee, email: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div className="responsive-grid-2" style={{ display: 'grid', gap: '10px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Employee ID</label>
-                      <input type="text" required value={newEmployee.employeeId} onChange={(e) => setNewEmployee({...newEmployee, employeeId: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                      <input type="text" required value={newEmployee.employeeId} onChange={(e) => setNewEmployee({ ...newEmployee, employeeId: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Password</label>
-                      <input type="password" required value={newEmployee.password} onChange={(e) => setNewEmployee({...newEmployee, password: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                      <input type="password" required value={newEmployee.password} onChange={(e) => setNewEmployee({ ...newEmployee, password: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                     </div>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                  <div className="responsive-grid-3" style={{ display: 'grid', gap: '10px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Department</label>
-                      <select value={newEmployee.department} onChange={(e) => setNewEmployee({...newEmployee, department: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+                      <select value={newEmployee.department} onChange={(e) => setNewEmployee({ ...newEmployee, department: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
                         <option>Engineering</option>
                         <option>Sales</option>
                         <option>Marketing</option>
@@ -245,11 +306,11 @@ const AdminEmployeesPage: React.FC = () => {
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Designation</label>
-                      <input type="text" required value={newEmployee.designation} onChange={(e) => setNewEmployee({...newEmployee, designation: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                      <input type="text" required value={newEmployee.designation} onChange={(e) => setNewEmployee({ ...newEmployee, designation: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Joining Date</label>
-                      <input type="date" required value={newEmployee.joiningDate} onChange={(e) => setNewEmployee({...newEmployee, joiningDate: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                      <input type="date" required value={newEmployee.joiningDate} onChange={(e) => setNewEmployee({ ...newEmployee, joiningDate: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                     </div>
                   </div>
                 </div>
@@ -259,31 +320,31 @@ const AdminEmployeesPage: React.FC = () => {
                   <h4 style={{ fontSize: '14px', fontWeight: 600, borderLeft: '3px solid var(--primary)', paddingLeft: '10px' }}>Personal & Emergency</h4>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Personal Contact Number</label>
-                    <input type="text" required value={newEmployee.contactNumber} onChange={(e) => setNewEmployee({...newEmployee, contactNumber: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                    <input type="text" required value={newEmployee.contactNumber} onChange={(e) => setNewEmployee({ ...newEmployee, contactNumber: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Emergency Contact Name (e.g. Father)</label>
-                    <input type="text" value={newEmployee.fatherName} onChange={(e) => setNewEmployee({...newEmployee, fatherName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                    <input type="text" value={newEmployee.fatherName} onChange={(e) => setNewEmployee({ ...newEmployee, fatherName: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div className="responsive-grid-2" style={{ display: 'grid', gap: '10px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Emergency Number</label>
-                      <input type="text" value={newEmployee.urgentContactNumber} onChange={(e) => setNewEmployee({...newEmployee, urgentContactNumber: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                      <input type="text" value={newEmployee.urgentContactNumber} onChange={(e) => setNewEmployee({ ...newEmployee, urgentContactNumber: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Blood Group</label>
-                      <select value={newEmployee.bloodGroup} onChange={(e) => setNewEmployee({...newEmployee, bloodGroup: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+                      <select value={newEmployee.bloodGroup} onChange={(e) => setNewEmployee({ ...newEmployee, bloodGroup: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
                         <option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
                       </select>
                     </div>
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Current Address</label>
-                    <textarea rows={2} value={newEmployee.address} onChange={(e) => setNewEmployee({...newEmployee, address: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', resize: 'none' }} />
+                    <textarea rows={2} value={newEmployee.address} onChange={(e) => setNewEmployee({ ...newEmployee, address: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', resize: 'none' }} />
                   </div>
                 </div>
               </div>
-              
+
               <button type="submit" style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '12px', borderRadius: '12px', fontWeight: 600, border: 'none', cursor: 'pointer', marginTop: '10px', fontSize: '16px' }}>
                 Create Employee Account
               </button>
@@ -294,8 +355,8 @@ const AdminEmployeesPage: React.FC = () => {
 
       {/* View Employee Details Modal */}
       {showDetailsModal && selectedEmployee && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '600px', margin: '20px', padding: '0', overflow: 'hidden' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '600px', padding: '0', overflowY: 'auto', maxHeight: '100%', borderRadius: '24px' }}>
             {/* Header / Banner */}
             <div style={{ backgroundColor: 'var(--primary)', padding: '32px', color: 'white', position: 'relative' }}>
               <button onClick={() => setShowDetailsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', color: 'white', padding: '8px', cursor: 'pointer' }}><X size={20} /></button>
@@ -311,7 +372,7 @@ const AdminEmployeesPage: React.FC = () => {
             </div>
 
             {/* Details Body */}
-            <div style={{ padding: '32px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <div className="responsive-grid-2" style={{ padding: '32px', gap: '24px' }}>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <Mail size={18} color="var(--primary)" style={{ marginTop: '4px' }} />
                 <div>
@@ -376,7 +437,7 @@ const AdminEmployeesPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div style={{ padding: '24px 32px', backgroundColor: 'var(--surface)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowDetailsModal(false)} style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '10px 24px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Close Profile</button>
             </div>
@@ -385,48 +446,48 @@ const AdminEmployeesPage: React.FC = () => {
       )}
       {/* Edit Employee Modal */}
       {showEditModal && editEmployee && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '700px', margin: '20px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '750px', padding: '28px', maxHeight: '100%', overflowY: 'auto', borderRadius: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <div>
                 <h3 style={{ fontSize: '20px', fontWeight: 700 }}>Edit Employee</h3>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Update profile details and company status.</p>
               </div>
-              <button 
-                onClick={() => setShowEditModal(false)} 
+              <button
+                onClick={() => setShowEditModal(false)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
               >
                 <X size={24} />
               </button>
             </div>
-            
+
             <form onSubmit={handleUpdateEmployee} style={{ display: 'grid', gap: '20px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div className="responsive-grid-2">
                 <div style={{ display: 'grid', gap: '16px' }}>
                   <h4 style={{ fontSize: '14px', fontWeight: 600, borderLeft: '3px solid var(--primary)', paddingLeft: '10px' }}>Basic Information</h4>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Full Name</label>
-                    <input type="text" required value={editEmployee.name} onChange={(e) => setEditEmployee({...editEmployee, name: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                    <input type="text" required value={editEmployee.name} onChange={(e) => setEditEmployee({ ...editEmployee, name: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Email Address</label>
-                    <input type="email" required value={editEmployee.email} onChange={(e) => setEditEmployee({...editEmployee, email: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                    <input type="email" required value={editEmployee.email} onChange={(e) => setEditEmployee({ ...editEmployee, email: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Employee ID</label>
-                    <input type="text" required value={editEmployee.employeeId || ''} onChange={(e) => setEditEmployee({...editEmployee, employeeId: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                    <input type="text" required value={editEmployee.employeeId || ''} onChange={(e) => setEditEmployee({ ...editEmployee, employeeId: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                  <div className="responsive-grid-3" style={{ display: 'grid', gap: '10px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Role</label>
-                      <select value={editEmployee.role} onChange={(e) => setEditEmployee({...editEmployee, role: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+                      <select value={editEmployee.role} onChange={(e) => setEditEmployee({ ...editEmployee, role: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
                         <option value="user">User</option>
                         <option value="admin">Admin</option>
                       </select>
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Department</label>
-                      <select value={editEmployee.department} onChange={(e) => setEditEmployee({...editEmployee, department: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+                      <select value={editEmployee.department} onChange={(e) => setEditEmployee({ ...editEmployee, department: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
                         <option>Engineering</option>
                         <option>Sales</option>
                         <option>Marketing</option>
@@ -435,7 +496,7 @@ const AdminEmployeesPage: React.FC = () => {
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Designation</label>
-                      <input type="text" value={editEmployee.designation || ''} onChange={(e) => setEditEmployee({...editEmployee, designation: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                      <input type="text" value={editEmployee.designation || ''} onChange={(e) => setEditEmployee({ ...editEmployee, designation: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                     </div>
                   </div>
                 </div>
@@ -444,27 +505,27 @@ const AdminEmployeesPage: React.FC = () => {
                   <h4 style={{ fontSize: '14px', fontWeight: 600, borderLeft: '3px solid var(--primary)', paddingLeft: '10px' }}>Personal & Emergency</h4>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Personal Contact</label>
-                    <input type="text" value={editEmployee.contactNumber || ''} onChange={(e) => setEditEmployee({...editEmployee, contactNumber: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                    <input type="text" value={editEmployee.contactNumber || ''} onChange={(e) => setEditEmployee({ ...editEmployee, contactNumber: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Emergency Contact Name</label>
-                    <input type="text" value={editEmployee.fatherName || ''} onChange={(e) => setEditEmployee({...editEmployee, fatherName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                    <input type="text" value={editEmployee.fatherName || ''} onChange={(e) => setEditEmployee({ ...editEmployee, fatherName: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div className="responsive-grid-2" style={{ display: 'grid', gap: '10px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Emergency Number</label>
-                      <input type="text" value={editEmployee.urgentContactNumber || ''} onChange={(e) => setEditEmployee({...editEmployee, urgentContactNumber: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                      <input type="text" value={editEmployee.urgentContactNumber || ''} onChange={(e) => setEditEmployee({ ...editEmployee, urgentContactNumber: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Blood Group</label>
-                      <select value={editEmployee.bloodGroup} onChange={(e) => setEditEmployee({...editEmployee, bloodGroup: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+                      <select value={editEmployee.bloodGroup} onChange={(e) => setEditEmployee({ ...editEmployee, bloodGroup: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
                         <option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
                       </select>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <button type="submit" style={{ backgroundColor: 'var(--success)', color: 'white', padding: '12px', borderRadius: '12px', fontWeight: 600, border: 'none', cursor: 'pointer', marginTop: '10px', fontSize: '16px' }}>
                 Save Updates
               </button>
