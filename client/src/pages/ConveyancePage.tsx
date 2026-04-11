@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Plus, X, CheckCircle, Clock, AlertCircle, DollarSign, Navigation, Car, Coffee, Utensils, ShoppingBag, MoreHorizontal, Calendar } from 'lucide-react';
 
@@ -21,8 +21,7 @@ const ConveyancePage: React.FC = () => {
 
   const fetchConveyances = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const { data } = await axios.get('http://localhost:5000/api/users/conveyance', config);
+      const { data } = await api.get('/api/users/conveyance');
       setConveyances(data);
       setLoading(false);
     } catch (err) {
@@ -40,18 +39,7 @@ const ConveyancePage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-
-      // Ensure specific fields are only sent if the type is Travel
-      const submissionData = {
-        ...formData,
-        amount: Number(formData.amount),
-        travelFrom: formData.expenseType === 'Travel' ? formData.travelFrom : undefined,
-        travelTo: formData.expenseType === 'Travel' ? formData.travelTo : undefined,
-        transportMedium: formData.expenseType === 'Travel' ? formData.transportMedium : undefined
-      };
-
-      await axios.post('http://localhost:5000/api/users/conveyance', submissionData, config);
+      await api.post('/api/users/conveyance', submissionData);
       alert('Claim submitted successfully!');
       setShowAddModal(false);
       setFormData({

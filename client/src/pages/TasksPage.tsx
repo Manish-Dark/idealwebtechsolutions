@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { CheckSquare, Calendar, AlertCircle } from 'lucide-react';
 
@@ -10,8 +10,7 @@ const TasksPage: React.FC = () => {
 
   const fetchMyTasks = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const res = await axios.get(`http://localhost:5000/api/users/tasks?t=${Date.now()}`, config);
+      const res = await api.get(`/api/users/tasks?t=${Date.now()}`);
       setTasks(res.data);
       setLoading(false);
     } catch (err) {
@@ -28,8 +27,7 @@ const TasksPage: React.FC = () => {
 
   const updateProgress = async (id: string, progress: number) => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.put(`http://localhost:5000/api/users/tasks/${id}/progress`, { progress }, config);
+      await api.put(`/api/users/tasks/${id}/progress`, { progress });
       // Optimistically update UI
       setTasks(prev => prev.map(t => t._id === id ? { ...t, progress } : t));
     } catch (err: any) {

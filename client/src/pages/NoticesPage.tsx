@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Bell, Calendar, Info, AlertTriangle } from 'lucide-react';
 
@@ -10,8 +10,7 @@ const NoticesPage: React.FC = () => {
 
   const fetchNotices = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const res = await axios.get(`http://localhost:5000/api/users/notices?t=${Date.now()}`, config);
+      const res = await api.get(`/api/users/notices?t=${Date.now()}`);
       setNotices(res.data);
       setLoading(false);
     } catch (err) {

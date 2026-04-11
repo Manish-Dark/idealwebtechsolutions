@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Calendar as CalendarIcon, Trash2, Plus, X } from 'lucide-react';
 
@@ -17,8 +17,7 @@ const AdminHolidaysPage: React.FC = () => {
 
   const fetchHolidays = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const res = await axios.get(`/api/admin/holidays?t=${Date.now()}`, config);
+      const res = await api.get(`/api/admin/holidays?t=${Date.now()}`);
       setHolidays(res.data);
       setLoading(false);
     } catch (err) {
@@ -34,8 +33,7 @@ const AdminHolidaysPage: React.FC = () => {
   const handleAddHoliday = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.post('/api/admin/holidays', holidayForm, config);
+      await api.post('/api/admin/holidays', holidayForm);
       alert('Holiday deployed successfully!');
       setHolidayForm({ title: '', date: '', type: 'General' });
       setShowAddModal(false);
@@ -48,8 +46,7 @@ const AdminHolidaysPage: React.FC = () => {
   const handleDeleteHoliday = async (id: string) => {
     if (!window.confirm('Are you sure you want to remove this holiday?')) return;
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.delete(`/api/admin/holidays/${id}`, config);
+      await api.delete(`/api/admin/holidays/${id}`);
       fetchHolidays();
     } catch (err) {
       alert('Failed to delete holiday');

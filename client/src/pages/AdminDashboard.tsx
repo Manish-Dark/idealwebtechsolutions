@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Users, Calendar, CheckSquare, Briefcase, ChevronRight, Activity } from 'lucide-react';
@@ -19,14 +19,13 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const config = { headers: { Authorization: `Bearer ${user?.token}` } };
         const [usersRes, leavesRes, tasksRes, holidaysRes, visitsRes, customersRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/admin/users', config),
-          axios.get('http://localhost:5000/api/admin/leaves', config),
-          axios.get('http://localhost:5000/api/admin/tasks', config),
-          axios.get('http://localhost:5000/api/admin/holidays', config),
-          axios.get('http://localhost:5000/api/admin/site-visits', config),
-          axios.get('http://localhost:5000/api/admin/customers', config)
+          api.get('/api/admin/users'),
+          api.get('/api/admin/leaves'),
+          api.get('/api/admin/tasks'),
+          api.get('/api/admin/holidays'),
+          api.get('/api/admin/site-visits'),
+          api.get('/api/admin/customers')
         ]);
 
         const today = new Date().setHours(0, 0, 0, 0);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Trash2, X, Mail, Briefcase, Calendar, Eye, Phone, Home, HeartPulse, User as UserIcon, Edit2 } from 'lucide-react';
 
@@ -30,8 +30,7 @@ const AdminEmployeesPage: React.FC = () => {
 
   const fetchEmployees = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const usersRes = await axios.get(`http://localhost:5000/api/admin/users?t=${Date.now()}`, config);
+      const usersRes = await api.get(`/api/admin/users?t=${Date.now()}`);
       setEmployees(usersRes.data);
       setLoading(false);
     } catch (err) {
@@ -49,8 +48,7 @@ const AdminEmployeesPage: React.FC = () => {
   const handleAddEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.post('http://localhost:5000/api/users', newEmployee, config);
+      await api.post('/api/users', newEmployee);
       alert('Employee added successfully!');
       setShowAddModal(false);
       setNewEmployee({
@@ -78,8 +76,7 @@ const AdminEmployeesPage: React.FC = () => {
     e.preventDefault();
     if (!editEmployee) return;
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.put(`http://localhost:5000/api/admin/users/${editEmployee._id}`, editEmployee, config);
+      await api.put(`/api/admin/users/${editEmployee._id}`, editEmployee);
       alert('Employee updated successfully!');
       setShowEditModal(false);
       fetchEmployees();
@@ -91,8 +88,7 @@ const AdminEmployeesPage: React.FC = () => {
   const handleDeleteEmployee = async (id: string, name: string) => {
     if (!window.confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) return;
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.delete(`http://localhost:5000/api/admin/users/${id}`, config);
+      await api.delete(`/api/admin/users/${id}`);
       alert('Employee deleted successfully');
       fetchEmployees();
     } catch (err: any) {

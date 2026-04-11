@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Trash2, Users, Building2, Phone, Mail, Edit2, X } from 'lucide-react';
 
@@ -21,8 +21,7 @@ const AdminCustomersPage: React.FC = () => {
 
   const fetchCustomers = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const res = await axios.get(`http://localhost:5000/api/admin/customers?t=${Date.now()}`, config);
+      const res = await api.get(`/api/admin/customers?t=${Date.now()}`);
       setCustomers(res.data);
       setLoading(false);
     } catch (err) {
@@ -60,12 +59,11 @@ const AdminCustomersPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      if (isEditing && editingCustomerId) {
-        await axios.put(`http://localhost:5000/api/admin/customers/${editingCustomerId}`, customerForm, config);
+      if (isEditing) {
+        await api.put(`/api/admin/customers/${editingCustomerId}`, customerForm);
         alert('Customer updated successfully!');
       } else {
-        await axios.post('http://localhost:5000/api/admin/customers', customerForm, config);
+        await api.post('/api/admin/customers', customerForm);
         alert('Customer added successfully!');
       }
       handleCancelEdit();
@@ -78,8 +76,7 @@ const AdminCustomersPage: React.FC = () => {
   const handleDeleteCustomer = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this customer?')) return;
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.delete(`http://localhost:5000/api/admin/customers/${id}`, config);
+      await api.delete(`/api/admin/customers/${id}`);
       fetchCustomers();
     } catch (err) {
       alert('Failed to delete customer');

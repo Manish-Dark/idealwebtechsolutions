@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Building2, User, ArrowRight, Search, Users } from 'lucide-react';
 
@@ -13,10 +13,9 @@ const AdminSiteVisitsPage: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
       const [visitsRes, empRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/admin/site-visits', config),
-        axios.get('http://localhost:5000/api/admin/users', config)
+        api.get('/api/admin/site-visits'),
+        api.get('/api/admin/users')
       ]);
       setVisits(visitsRes.data);
       setEmployees(empRes.data);

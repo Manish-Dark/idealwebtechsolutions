@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FileText, DollarSign, Eye, X, Activity, Briefcase, Download } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -15,8 +15,7 @@ const UserSalaryPage: React.FC = () => {
 
   const fetchSalaryHistory = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const res = await axios.get('http://localhost:5000/api/users/salary', config);
+      const res = await api.get('/api/users/salary');
       setSalarySlips(res.data);
       setLoading(false);
     } catch (err) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { User, Mail, Phone, MapPin, Calendar, Droplet, UserPlus, Lock, Key, CheckCircle, X } from 'lucide-react';
 
@@ -16,8 +16,7 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-        const { data } = await axios.get('http://localhost:5000/api/users/profile', config);
+        const { data } = await api.get('/api/users/profile');
         setProfile(data);
       } catch (err) {
         console.error(err);
@@ -33,11 +32,10 @@ const ProfilePage: React.FC = () => {
       return;
     }
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.put('http://localhost:5000/api/users/profile/password', {
+      await api.put('/api/users/profile/password', {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword
-      }, config);
+      });
       alert('Password updated successfully!');
       setShowPasswordModal(false);
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });

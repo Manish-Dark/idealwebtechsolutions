@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Calendar, FileText, Clock } from 'lucide-react';
 
@@ -12,14 +12,11 @@ const LeavesPage: React.FC = () => {
 
   const fetchLeaveData = useCallback(async () => {
     try {
-      const token = user?.token;
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      // Adding ?t= timestamp to prevent caching
-      const profileRes = await axios.get(`http://localhost:5000/api/users/profile?t=${Date.now()}`, config);
+      const profileRes = await api.get(`/api/users/profile?t=${Date.now()}`);
       setLeaveBalance(profileRes.data.leaveBalance);
       setProvidedBalance(profileRes.data.providedBalance);
 
-      const leavesRes = await axios.get(`http://localhost:5000/api/users/leaves?t=${Date.now()}`, config);
+      const leavesRes = await api.get(`/api/users/leaves?t=${Date.now()}`);
       setLeaves(leavesRes.data);
     } catch (err) {
       console.error(err);
@@ -38,12 +35,11 @@ const LeavesPage: React.FC = () => {
   const handleApplyLeave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.post('http://localhost:5000/api/users/leaves', leaveForm, config);
+      await api.post('/api/users/leaves', leaveForm);
       alert('Leave application submitted successfully!');
       setLeaveForm({ type: 'Sick Leave', startDate: '', endDate: '', reason: '', description: '' });
       // Refresh leaves list
-      const leavesRes = await axios.get('http://localhost:5000/api/users/leaves', config);
+      const leavesRes = await api.get('/api/users/leaves');
       setLeaves(leavesRes.data);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to submit leave application');

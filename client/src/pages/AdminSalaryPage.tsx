@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Plus, X, CheckCircle, User, DollarSign, AlertCircle, Search, Users, Edit, Trash2 } from 'lucide-react';
 
@@ -35,10 +35,9 @@ const AdminSalaryPage: React.FC = () => {
 
   const fetchEmployees = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
       const [usersRes, salaryRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/admin/users`, config),
-        axios.get(`http://localhost:5000/api/admin/salary`, config)
+        api.get('/api/admin/users'),
+        api.get('/api/admin/salary')
       ]);
       setEmployees(usersRes.data);
       setSalarySlips(salaryRes.data);
@@ -94,8 +93,7 @@ const AdminSalaryPage: React.FC = () => {
   const handleDeleteSlip = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this salary slip?')) return;
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.delete(`http://localhost:5000/api/admin/salary/${id}`, config);
+      await api.delete(`/api/admin/salary/${id}`);
       await fetchEmployees();
       alert('Salary slip deleted successfully!');
     } catch (err: any) {
@@ -129,17 +127,10 @@ const AdminSalaryPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const data = {
-        ...formData,
-        grossEarning,
-        netSalary
-      };
-
       if (editingSlipId) {
-        await axios.put(`http://localhost:5000/api/admin/salary/${editingSlipId}`, data, config);
+        await api.put(`/api/admin/salary/${editingSlipId}`, data);
       } else {
-        await axios.post('http://localhost:5000/api/admin/salary', data, config);
+        await api.post('/api/admin/salary', data);
       }
 
       await fetchEmployees();

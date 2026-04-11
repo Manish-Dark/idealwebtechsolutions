@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle, XCircle, Car, Coffee, Utensils, ShoppingBag, Search, Users } from 'lucide-react';
 
@@ -14,10 +14,9 @@ const AdminConveyancePage: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
       const [conRes, empRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/admin/conveyance', config),
-        axios.get('http://localhost:5000/api/admin/users', config)
+        api.get('/api/admin/conveyance'),
+        api.get('/api/admin/users')
       ]);
       setConveyances(conRes.data);
       setEmployees(empRes.data);
@@ -36,8 +35,7 @@ const AdminConveyancePage: React.FC = () => {
 
   const handleStatusChange = async (id: string, status: 'Approved' | 'Rejected') => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.put(`http://localhost:5000/api/admin/conveyance/${id}`, { status }, config);
+      await api.put(`/api/admin/conveyance/${id}`, { status });
       alert(`Claim ${status} successfully!`);
       fetchData();
     } catch (err: any) {

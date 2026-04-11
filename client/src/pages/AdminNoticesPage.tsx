@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Megaphone, Trash2, Plus, AlertTriangle, Info, Bell } from 'lucide-react';
 
@@ -16,8 +16,7 @@ const AdminNoticesPage: React.FC = () => {
 
   const fetchNotices = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const res = await axios.get(`http://localhost:5000/api/admin/notices?t=${Date.now()}`, config);
+      const res = await api.get(`/api/admin/notices?t=${Date.now()}`);
       setNotices(res.data);
       setLoading(false);
     } catch (err) {
@@ -33,8 +32,7 @@ const AdminNoticesPage: React.FC = () => {
   const handleAddNotice = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.post('http://localhost:5000/api/admin/notices', noticeForm, config);
+      await api.post('/api/admin/notices', noticeForm);
       alert('Notice published successfully!');
       setNoticeForm({ title: '', content: '', priority: 'Medium' });
       fetchNotices();
@@ -46,8 +44,7 @@ const AdminNoticesPage: React.FC = () => {
   const handleDeleteNotice = async (id: string) => {
     if (!window.confirm('Are you sure you want to remove this notice?')) return;
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.delete(`http://localhost:5000/api/admin/notices/${id}`, config);
+      await api.delete(`/api/admin/notices/${id}`);
       fetchNotices();
     } catch (err) {
       alert('Failed to delete notice');

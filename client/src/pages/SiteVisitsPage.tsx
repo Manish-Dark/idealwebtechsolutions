@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Plus, X, MapPin, Building2, User, Phone, Briefcase, FileText, Calendar, ArrowRight } from 'lucide-react';
 
@@ -22,10 +22,9 @@ const SiteVisitsPage: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
       const [visitsRes, customersRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/users/site-visits', config),
-        axios.get('http://localhost:5000/api/users/customers', config)
+        api.get('/api/users/site-visits'),
+        api.get('/api/users/customers')
       ]);
       setVisits(visitsRes.data);
       setCustomers(customersRes.data);
@@ -69,8 +68,7 @@ const SiteVisitsPage: React.FC = () => {
       return;
     }
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.post('http://localhost:5000/api/users/site-visit', formData, config);
+      await api.post('/api/users/site-visit', formData);
       alert('Site visit logged successfully!');
       setShowAddModal(false);
       setFormData({

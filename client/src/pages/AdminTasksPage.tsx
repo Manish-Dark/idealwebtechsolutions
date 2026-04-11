@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { CheckSquare, Trash2, User as UserIcon, AlertCircle } from 'lucide-react';
 
@@ -19,11 +19,10 @@ const AdminTasksPage: React.FC = () => {
 
   const fetchAllData = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
       const [tasksRes, usersRes, customersRes] = await Promise.all([
-        axios.get(`/api/admin/tasks?t=${Date.now()}`, config),
-        axios.get(`/api/admin/users?t=${Date.now()}`, config),
-        axios.get(`/api/admin/customers?t=${Date.now()}`, config)
+        api.get(`/api/admin/tasks?t=${Date.now()}`),
+        api.get(`/api/admin/users?t=${Date.now()}`),
+        api.get(`/api/admin/customers?t=${Date.now()}`)
       ]);
       setTasks(tasksRes.data);
       // Only keep normal users
@@ -45,8 +44,7 @@ const AdminTasksPage: React.FC = () => {
   const handleAssignTask = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.post('/api/admin/tasks', taskForm, config);
+      await api.post('/api/admin/tasks', taskForm);
       alert('Task assigned successfully!');
       setTaskForm({ title: '', description: '', assignedTo: '', deadline: '' });
       fetchAllData();
@@ -58,8 +56,7 @@ const AdminTasksPage: React.FC = () => {
   const handleDeleteTask = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this task?')) return;
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.delete(`/api/admin/tasks/${id}`, config);
+      await api.delete(`/api/admin/tasks/${id}`);
       fetchAllData();
     } catch (err) {
       alert('Failed to delete task');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle, LogIn, LogOut, Activity, Calendar, Clock, AlertCircle, Sun, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -17,10 +17,9 @@ const AttendancePage: React.FC = () => {
 
   const fetchAttendanceData = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
       const [attRes, leavesRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/users/attendance?t=${Date.now()}`, config),
-        axios.get(`http://localhost:5000/api/users/leaves?t=${Date.now()}`, config).catch(() => ({ data: [] }))
+        api.get(`/api/users/attendance?t=${Date.now()}`),
+        api.get(`/api/users/leaves?t=${Date.now()}`).catch(() => ({ data: [] }))
       ]);
       const historyData = attRes.data;
       const leavesData = leavesRes.data || [];
@@ -82,19 +81,7 @@ const AttendancePage: React.FC = () => {
 
   const handleAttendance = async (type: 'check-in' | 'check-out') => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-
-      let location = null;
-      if (navigator.geolocation) {
-        try {
-          const pos: any = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej));
-          location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        } catch (e) {
-          console.warn('Location access denied');
-        }
-      }
-
-      await axios.post('http://localhost:5000/api/users/attendance', { type, location }, config);
+      await api.post('/api/users/attendance', { type, location });
       alert(`${type === 'check-in' ? 'Clocked In' : 'Clocked Out'} Successfully!`);
       fetchAttendanceData();
     } catch (err: any) {

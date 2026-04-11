@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Check, X } from 'lucide-react';
 
@@ -11,9 +11,7 @@ const AdminLeavesPage: React.FC = () => {
 
   const fetchLeaves = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      // Adding a timestamp ?t= to prevent browser caching
-      const { data } = await axios.get(`http://localhost:5000/api/admin/leaves?t=${Date.now()}`, config);
+      const { data } = await api.get(`/api/admin/leaves?t=${Date.now()}`);
       setLeaves(data);
       setLoading(false);
     } catch (err: any) {
@@ -36,8 +34,7 @@ const AdminLeavesPage: React.FC = () => {
 
   const handleStatusUpdate = async (id: string, status: string) => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.put(`http://localhost:5000/api/admin/leaves/${id}`, { status }, config);
+      await api.put(`/api/admin/leaves/${id}`, { status });
       alert(`Leave request ${status.toLowerCase()}ed`);
       fetchLeaves();
     } catch (err) {
@@ -49,8 +46,7 @@ const AdminLeavesPage: React.FC = () => {
     if (!window.confirm('Are you sure you want to update leave balances for ALL employees? This will override their current balances.')) return;
 
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const { data } = await axios.put('http://localhost:5000/api/admin/balances/global', globalBalance, config);
+      const { data } = await api.put('/api/admin/balances/global', globalBalance);
       alert(data.message);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to update global balances');

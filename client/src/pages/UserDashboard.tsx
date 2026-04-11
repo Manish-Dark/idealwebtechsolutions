@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle, Calendar, Briefcase, FileText, ChevronRight, Activity, Megaphone, Bell, Info, AlertTriangle, Sparkles, Send } from 'lucide-react';
 
@@ -16,15 +16,13 @@ const UserDashboard: React.FC = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-        
         const [tasksRes, attendanceRes, noticesRes, holidayRes, leaveRes, moodRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/users/tasks', config),
-          axios.get('http://localhost:5000/api/users/attendance', config),
-          axios.get('http://localhost:5000/api/users/notices', config),
-          axios.get('http://localhost:5000/api/users/holidays', config),
-          axios.get('http://localhost:5000/api/users/leaves', config),
-          axios.get('http://localhost:5000/api/users/mood', config)
+          api.get('/api/users/tasks'),
+          api.get('/api/users/attendance'),
+          api.get('/api/users/notices'),
+          api.get('/api/users/holidays'),
+          api.get('/api/users/leaves'),
+          api.get('/api/users/mood')
         ]);
         
         setTasks(tasksRes.data);
@@ -53,8 +51,7 @@ const UserDashboard: React.FC = () => {
   const handleMoodSubmit = async () => {
     try {
       setIsSubmittingMood(true);
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const res = await axios.post('http://localhost:5000/api/users/mood', { mood: newMood }, config);
+      const res = await api.post('/api/users/mood', { mood: newMood });
       setMoods([res.data, ...moods.slice(0, 9)]);
       setIsSubmittingMood(false);
     } catch (err) {

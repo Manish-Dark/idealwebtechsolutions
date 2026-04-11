@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { MapPin, Search, Calendar, Users, Activity, AlertTriangle } from 'lucide-react';
 
@@ -15,10 +15,9 @@ const AdminAttendancePage: React.FC = () => {
 
   const fetchAllData = useCallback(async () => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
       const [attRes, usersRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/admin/attendance?t=${Date.now()}`, config),
-        axios.get(`http://localhost:5000/api/admin/users?t=${Date.now()}`, config)
+        api.get(`/api/admin/attendance?t=${Date.now()}`),
+        api.get(`/api/admin/users?t=${Date.now()}`)
       ]);
 
       console.log(`[AdminAttendance] Fetched ${usersRes.data.length} users and ${attRes.data.length} records.`);
