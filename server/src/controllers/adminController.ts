@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
-import User from '../models/User';
-import Leave from '../models/Leave';
-import Task from '../models/Task';
-import Holiday from '../models/Holiday';
-import SalarySlip from '../models/SalarySlip';
-import Attendance from '../models/Attendance';
-import Customer from '../models/Customer';
-import SiteVisit from '../models/SiteVisit';
-import Notice from '../models/Notice';
-import Conveyance from '../models/Conveyance';
+import User from '../models/User.js';
+import Leave from '../models/Leave.js';
+import Task from '../models/Task.js';
+import Holiday from '../models/Holiday.js';
+import SalarySlip from '../models/SalarySlip.js';
+import Attendance from '../models/Attendance.js';
+import Customer from '../models/Customer.js';
+import SiteVisit from '../models/SiteVisit.js';
+import Notice from '../models/Notice.js';
+import Conveyance from '../models/Conveyance.js';
 
 // @desc    Get all users
 // @route   GET /api/admin/users

@@ -27,8 +27,8 @@ import {
   deleteSalarySlip,
   getAllConveyances,
   updateConveyanceStatus
-} from '../controllers/adminController';
-import { protect, admin } from '../middleware/auth';
+} from '../controllers/adminController.js';
+import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
 

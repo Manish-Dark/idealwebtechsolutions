@@ -1,5 +1,5 @@
 import express from 'express';
-import { authUser, registerUser, getUserProfile, updatePassword } from '../controllers/userController';
+import { authUser, registerUser, getUserProfile, updatePassword } from '../controllers/userController.js';
 import {
   markAttendance,
   getAttendanceHistory,
@@ -17,8 +17,8 @@ import {
   getMyConveyances,
   getMySiteVisits,
   getCustomersForUser,
-} from '../controllers/userActionController';
-import { protect, admin } from '../middleware/auth';
+} from '../controllers/userActionController.js';
+import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
 

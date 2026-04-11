@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
-import Attendance from '../models/Attendance';
-import Leave from '../models/Leave';
-import Task from '../models/Task';
-import Conveyance from '../models/Conveyance';
-import SiteVisit from '../models/SiteVisit';
-import Customer from '../models/Customer';
-import SalarySlip from '../models/SalarySlip';
-import Holiday from '../models/Holiday';
-import Notice from '../models/Notice';
-import Mood from '../models/Mood';
+import Attendance from '../models/Attendance.js';
+import Leave from '../models/Leave.js';
+import Task from '../models/Task.js';
+import Conveyance from '../models/Conveyance.js';
+import SiteVisit from '../models/SiteVisit.js';
+import Customer from '../models/Customer.js';
+import SalarySlip from '../models/SalarySlip.js';
+import Holiday from '../models/Holiday.js';
+import Notice from '../models/Notice.js';
+import Mood from '../models/Mood.js';
 
 // @desc    Mark attendance
 // @route   POST /api/users/attendance
