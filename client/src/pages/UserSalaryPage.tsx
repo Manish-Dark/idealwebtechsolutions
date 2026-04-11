@@ -28,16 +28,56 @@ const UserSalaryPage: React.FC = () => {
     fetchSalaryHistory();
   }, [fetchSalaryHistory]);
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleDownloadPDF = async () => {
     if (!slipRef.current || !selectedSlip) return;
 
     try {
       setIsGeneratingPDF(true);
       const element = slipRef.current;
+      
       const canvas = await html2canvas(element, {
-        scale: 2, // Higher scale for better quality
+        scale: 3, 
         useCORS: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        logging: false,
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.getElementById('salary-slip-view');
+          if (clonedElement) {
+            // FORCE DESKTOP LAYOUT IN CLONE FOR PERFECT EXPORT
+            clonedElement.style.width = '1000px'; 
+            clonedElement.style.minWidth = '1000px';
+            clonedElement.style.height = 'auto';
+            clonedElement.style.overflow = 'visible';
+            clonedElement.style.padding = '60px'; 
+            
+            // Force responsive components to desktop layout in the clone
+            const responsiveElements = clonedElement.querySelectorAll('.responsive-pdf-target');
+            responsiveElements.forEach((el: any) => {
+              if (el.dataset.desktopStyle) {
+                const styles = JSON.parse(el.dataset.desktopStyle);
+                Object.assign(el.style, styles);
+              }
+            });
+
+            // CRITICAL: Un-clip all parents to ensure full height capture
+            let p: HTMLElement | null = clonedElement.parentElement;
+            while (p) {
+              p.style.maxHeight = 'none';
+              p.style.height = 'auto';
+              p.style.overflow = 'visible';
+              p.style.position = 'static';
+              p = p.parentElement;
+            }
+          }
+        }
       });
 
       const imgData = canvas.toDataURL('image/png');
@@ -164,7 +204,13 @@ const UserSalaryPage: React.FC = () => {
             <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No records available.</div>
           ) : (
             salarySlips.map((slip) => (
-              <div key={slip._id} className="user-sal-item-card animate-scale">
+              <div 
+                key={slip._id} 
+                className="user-sal-item-card animate-scale" 
+                id={slip._id}
+                onClick={() => setSelectedSlip(slip)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="user-sal-card-header">
                   <span className="user-sal-card-period">{slip.month} {slip.year}</span>
                   <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 700 }}>{slip.status}</span>
@@ -181,12 +227,11 @@ const UserSalaryPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="user-sal-card-footer">
+                <div className="user-sal-card-footer" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
                   <button
-                    onClick={() => setSelectedSlip(slip)}
-                    style={{ width: '100%', padding: '12px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                    style={{ width: '100%', padding: '12px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', pointerEvents: 'none' }}
                   >
-                    <Eye size={18} /> View & Download Slip
+                    <Eye size={18} /> View Slip
                   </button>
                 </div>
               </div>
@@ -197,146 +242,202 @@ const UserSalaryPage: React.FC = () => {
 
       {/* Slip Modal View */}
       {selectedSlip && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', padding: '0', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
-            {/* Modal Header */}
-            <div style={{ padding: '24px 32px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', zIndex: 10 }}>
+        <div 
+          onClick={() => setSelectedSlip(null)}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(24px)', display: 'flex', alignItems: isMobile ? 'center' : 'flex-start', justifyContent: 'center', zIndex: 1000, padding: isMobile ? '0' : '20px', paddingTop: isMobile ? '0' : '40px', overflowY: 'auto' }}
+        >
+          {/* Modal Container */}
+          <div 
+            className="animate-scale" 
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: '100%', maxWidth: '850px', height: isMobile ? '100%' : 'auto', maxHeight: isMobile ? '100%' : 'max-content', minHeight: isMobile ? '100%' : 'auto', display: 'flex', flexDirection: 'column', padding: '0', borderRadius: isMobile ? '0' : '32px', backgroundColor: '#ffffff', border: isMobile ? 'none' : '1px solid #e5e7eb', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', overflow: 'hidden', position: 'relative', margin: isMobile ? '0' : '0 auto' }}
+          >
+            {/* 1. FIXED MODAL HEADER */}
+            <div style={{ padding: isMobile ? '16px 20px' : '20px 32px', borderBottom: '1.5px solid #e5e7eb', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', backgroundColor: '#ffffff', zIndex: 100, flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.05)', gap: isMobile ? '12px' : '12px' }}>
               <div>
-                <h3 style={{ fontSize: '20px', fontWeight: 800 }}>Salary Statement</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{selectedSlip.month} {selectedSlip.year}</p>
+                <h3 style={{ fontSize: isMobile ? '18px' : '20px', fontWeight: 800, color: 'var(--text-main)' }}>Salary Statement</h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Personal Payroll Record • {selectedSlip.month} {selectedSlip.year}</p>
               </div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', width: isMobile ? '100%' : 'auto' }}>
                 <button
                   onClick={handleDownloadPDF}
                   disabled={isGeneratingPDF}
                   style={{
-                    padding: '10px 20px',
+                    flex: isMobile ? 1 : 'none',
+                    padding: '10px 24px',
                     backgroundColor: 'var(--primary)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '10px',
+                    borderRadius: '12px',
                     fontWeight: 700,
                     cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    fontSize: '13px'
+                    justifyContent: 'center',
+                    gap: '10px',
+                    fontSize: '13px',
+                    boxShadow: 'var(--shadow-md)',
+                    transition: 'all 0.2s ease'
                   }}
                 >
-                  {isGeneratingPDF ? <div className="animate-spin" style={{ width: '14px', height: '14px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }}></div> : <Download size={16} />}
-                  {isGeneratingPDF ? 'Processing...' : 'Download PDF'}
+                  {isGeneratingPDF ? <div className="animate-spin" style={{ width: '14px', height: '14px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }}></div> : <Download size={18} />}
+                  {isGeneratingPDF ? 'Exporting...' : 'Export PDF'}
                 </button>
-                <button onClick={() => setSelectedSlip(null)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                  <X size={20} />
+                <button 
+                  onClick={() => setSelectedSlip(null)} 
+                  style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '12px', width: '42px', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)' }}
+                >
+                  <X size={24} />
                 </button>
               </div>
             </div>
 
-            {/* THE SLIP CONTENT (TARGET FOR PDF) */}
-            <div ref={slipRef} style={{ padding: '40px', backgroundColor: '#ffffff', color: '#111827', fontFamily: 'Inter, sans-serif' }}>
-              {/* Header / Company Info Placeholder if any, usually Employee info first */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px', borderBottom: '2px solid #f3f4f6', paddingBottom: '20px' }}>
-                <div>
-                  <h2 style={{ fontSize: '24px', fontWeight: 900, color: '#111827', letterSpacing: '-0.02em' }}>PAYSLIP</h2>
-                  <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: 600 }}>{selectedSlip.month.toUpperCase()} {selectedSlip.year}</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>Employee ID: #{user?.employeeId}</p>
-                  <p style={{ fontSize: '13px', color: '#6b7280' }}>Status: {selectedSlip.status}</p>
-                </div>
-              </div>
-
-              {/* Employee Details Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', marginBottom: '40px' }}>
-                <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
-                  <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Employee Name</p>
-                  <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{user?.name}</p>
-                </div>
-                <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
-                  <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Designation</p>
-                  <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{selectedSlip.designation || user?.designation || 'N/A'}</p>
-                </div>
-                <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
-                  <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Department</p>
-                  <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{selectedSlip.department || user?.department || 'N/A'}</p>
-                </div>
-                <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
-                  <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '4px' }}>Pay Period</p>
-                  <p style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{selectedSlip.month} {selectedSlip.year}</p>
-                </div>
-              </div>
-
-              {/* Earnings & Deductions Table */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginBottom: '40px' }}>
-                {/* Earnings */}
-                <div>
-                  <h4 style={{ fontSize: '12px', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>Earnings</h4>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
-                    <span style={{ fontSize: '14px', color: '#4b5563' }}>Basic Salary</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>₹{selectedSlip.basicSalary?.toLocaleString() || 0}</span>
+            {/* 2. SCROLLABLE BODY */}
+            <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f3f4f6' }}>
+              <div 
+                ref={slipRef} 
+                id="salary-slip-view" 
+                style={{ 
+                  padding: isMobile ? '30px 20px' : '60px', 
+                  backgroundColor: '#ffffff', 
+                  color: '#111827', 
+                  fontFamily: "'Inter', sans-serif", 
+                  width: '100%', 
+                  minHeight: '100%',
+                  margin: '0 auto',
+                  maxWidth: '100%'
+                }}
+              >
+                {/* Official Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px', borderBottom: '3px solid #111827', paddingBottom: '24px' }}>
+                  <div>
+                    <h1 style={{ fontSize: isMobile ? '28px' : '36px', fontWeight: 900, color: '#111827', letterSpacing: '-0.04em', marginBottom: '2px' }}>CMS</h1>
+                    <p style={{ fontSize: '11px', fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Payroll Management System</p>
+                    <p style={{ fontSize: '10px', color: '#6b7280', marginTop: '6px', fontWeight: 500 }}>Confidential Official Remuneration Statement</p>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
-                    <span style={{ fontSize: '14px', color: '#4b5563' }}>HRA</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>₹{selectedSlip.hra?.toLocaleString() || 0}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
-                    <span style={{ fontSize: '14px', color: '#4b5563' }}>Conveyance</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>₹{selectedSlip.conveyance?.toLocaleString() || 0}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 0', borderTop: '2px dashed #e5e7eb', marginTop: '10px' }}>
-                    <span style={{ fontSize: '14px', fontWeight: 800, color: '#111827' }}>Gross Earnings</span>
-                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#10b981' }}>₹{selectedSlip.grossEarning?.toLocaleString() || 0}</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ border: '2.5px solid #111827', color: '#111827', padding: isMobile ? '6px 12px' : '10px 24px', borderRadius: '12px', display: 'inline-block', marginBottom: '10px' }}>
+                      <h2 style={{ fontSize: isMobile ? '12px' : '16px', fontWeight: 900, margin: 0, letterSpacing: '0.1em' }}>PAYSLIP</h2>
+                    </div>
+                    <p style={{ fontSize: isMobile ? '10px' : '14px', fontWeight: 800, color: '#111827' }}>REF: #{selectedSlip._id.slice(-8).toUpperCase()}</p>
                   </div>
                 </div>
 
-                {/* Deductions */}
-                <div>
-                  <h4 style={{ fontSize: '12px', fontWeight: 800, color: '#ef4444', textTransform: 'uppercase', marginBottom: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>Deductions</h4>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
-                    <span style={{ fontSize: '14px', color: '#4b5563' }}>Tax / Other Deductions</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#ef4444' }}>₹{selectedSlip.totalDeduction?.toLocaleString() || 0}</span>
+                {/* Document Info Row */}
+                <div 
+                  className="responsive-pdf-target"
+                  data-desktop-style='{"gridTemplateColumns": "repeat(4, 1fr)"}'
+                  style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '24px', marginBottom: '40px' }}
+                >
+                  <div style={{ borderLeft: '4px solid #f3f4f6', paddingLeft: '16px' }}>
+                    <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '6px' }}>Employee Name</p>
+                    <p style={{ fontSize: isMobile ? '14px' : '16px', fontWeight: 700, color: '#111827' }}>{user?.name}</p>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 0', borderTop: '2px dashed #e5e7eb', marginTop: '42px' }}>
-                    <span style={{ fontSize: '14px', fontWeight: 800, color: '#111827' }}>Total Deductions</span>
-                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#ef4444' }}>₹{selectedSlip.totalDeduction?.toLocaleString() || 0}</span>
+                  <div style={{ borderLeft: '4px solid #f3f4f6', paddingLeft: '16px' }}>
+                    <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '6px' }}>Employee ID</p>
+                    <p style={{ fontSize: isMobile ? '14px' : '16px', fontWeight: 700, color: '#111827' }}>{user?.employeeId}</p>
+                  </div>
+                  <div style={{ borderLeft: '4px solid #f3f4f6', paddingLeft: '16px' }}>
+                    <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '6px' }}>Pay Period</p>
+                    <p style={{ fontSize: isMobile ? '14px' : '16px', fontWeight: 700, color: '#111827' }}>{selectedSlip.month} {selectedSlip.year}</p>
+                  </div>
+                  <div style={{ borderLeft: '4px solid #f3f4f6', paddingLeft: '16px' }}>
+                    <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '6px' }}>Status</p>
+                    <p style={{ fontSize: isMobile ? '12px' : '14px', fontWeight: 800, color: '#10b981', textTransform: 'uppercase' }}>{selectedSlip.status}</p>
                   </div>
                 </div>
-              </div>
 
-              {/* Net Payable Banner */}
-              <div style={{ padding: '24px', backgroundColor: '#111827', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                <div>
-                  <p style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>NET SALARY PAYABLE</p>
-                  <p style={{ fontSize: '12px', color: '#9ca3af' }}>Final amount credited to account</p>
+                {/* Roles & Department Grid */}
+                <div 
+                  className="responsive-pdf-target"
+                  data-desktop-style='{"gridTemplateColumns": "repeat(2, 1fr)"}'
+                  style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '24px', marginBottom: '48px', backgroundColor: '#f9fafb', padding: '28px', borderRadius: '20px', border: '1px solid #f3f4f6' }}
+                >
+                  <div>
+                    <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '6px' }}>Position & Grade</p>
+                    <p style={{ fontSize: isMobile ? '15px' : '17px', fontWeight: 700, color: '#111827' }}>{selectedSlip.designation || user?.designation || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 800, marginBottom: '6px' }}>Department</p>
+                    <p style={{ fontSize: isMobile ? '15px' : '17px', fontWeight: 700, color: '#111827' }}>{selectedSlip.department || user?.department || 'N/A'}</p>
+                  </div>
                 </div>
-                <div style={{ fontSize: '32px', fontWeight: 900, color: '#60a5fa' }}>
-                  ₹{selectedSlip.netSalary?.toLocaleString() || 0}
-                </div>
-              </div>
 
-              {/* Attendance Summary - MOVED TO BOTTOM AS REQUESTED */}
-              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '30px' }}>
-                <h4 style={{ fontSize: '11px', fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', marginBottom: '15px' }}>Attendance Summary</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
-                  <div style={{ textAlign: 'center', backgroundColor: '#f0fdf4', padding: '12px 8px', borderRadius: '12px', border: '1px solid #dcfce7' }}>
-                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#16a34a' }}>{selectedSlip.presentDays || 0}</p>
-                    <p style={{ fontSize: '10px', color: '#166534', fontWeight: 700, textTransform: 'uppercase' }}>Present</p>
+                {/* Financial Summary Table */}
+                <div style={{ border: '1.5px solid #e5e7eb', borderRadius: '20px', overflow: 'hidden', marginBottom: '40px' }}>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: isMobile ? '450px' : 'auto' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f9fafb', borderBottom: '1.5px solid #e5e7eb' }}>
+                          <th style={{ textAlign: 'left', padding: '18px 28px', fontSize: '12px', fontWeight: 800, color: '#4b5563', textTransform: 'uppercase' }}>Components</th>
+                          <th style={{ textAlign: 'right', padding: '18px 28px', fontSize: '12px', fontWeight: 800, color: '#4b5563', textTransform: 'uppercase' }}>Earnings</th>
+                          <th style={{ textAlign: 'right', padding: '18px 28px', fontSize: '12px', fontWeight: 800, color: '#4b5563', textTransform: 'uppercase' }}>Deductions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style={{ padding: '16px 28px', fontSize: '14px', fontWeight: 600, color: '#374151' }}>Basic Remuneration</td>
+                          <td style={{ padding: '16px 28px', fontSize: '14px', fontWeight: 700, textAlign: 'right', color: '#111827' }}>₹{selectedSlip.basicSalary?.toLocaleString() || 0}</td>
+                          <td style={{ padding: '16px 28px', fontSize: '14px', textAlign: 'right', color: '#9ca3af' }}>-</td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '16px 28px', fontSize: '14px', fontWeight: 600, color: '#374151' }}>House Rent Allowance</td>
+                          <td style={{ padding: '16px 28px', fontSize: '14px', fontWeight: 700, textAlign: 'right', color: '#111827' }}>₹{selectedSlip.hra?.toLocaleString() || 0}</td>
+                          <td style={{ padding: '16px 28px', fontSize: '14px', textAlign: 'right', color: '#9ca3af' }}>-</td>
+                        </tr>
+                        <tr style={{ borderTop: '2px solid #111827', backgroundColor: '#f9fafb' }}>
+                          <td style={{ padding: '20px 28px', fontSize: '14px', fontWeight: 900, color: '#111827' }}>Gross Balances</td>
+                          <td style={{ padding: '20px 28px', fontSize: '17px', fontWeight: 900, textAlign: 'right', color: '#10b981' }}>₹{selectedSlip.grossEarning?.toLocaleString() || 0}</td>
+                          <td style={{ padding: '20px 28px', fontSize: '17px', fontWeight: 900, textAlign: 'right', color: '#dc2626' }}>₹{selectedSlip.totalDeduction?.toLocaleString() || 0}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                  <div style={{ textAlign: 'center', backgroundColor: '#fef2f2', padding: '12px 8px', borderRadius: '12px', border: '1px solid #fee2e2' }}>
-                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#dc2626' }}>{selectedSlip.absentDays || 0}</p>
-                    <p style={{ fontSize: '10px', color: '#991b1b', fontWeight: 700, textTransform: 'uppercase' }}>Absent</p>
+                </div>
+
+                {/* Net Salary Highlight */}
+                <div 
+                  className="responsive-pdf-target"
+                  data-desktop-style='{"flexDirection": "row", "padding": "32px 40px"}'
+                  style={{ padding: isMobile ? '24px' : '32px 40px', backgroundColor: '#f8fafc', border: '2px solid #111827', borderRadius: '24px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', marginBottom: '40px', gap: isMobile ? '16px' : '0' }}
+                >
+                  <div>
+                    <p style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 900, color: '#111827', textTransform: 'uppercase' }}>Net Payable Component</p>
+                    <p style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', fontWeight: 500 }}>Final amount transferred to account.</p>
                   </div>
-                  <div style={{ textAlign: 'center', backgroundColor: '#fffbeb', padding: '12px 8px', borderRadius: '12px', border: '1px solid #fef3c7' }}>
-                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#d97706' }}>{selectedSlip.leaveDays || 0}</p>
-                    <p style={{ fontSize: '10px', color: '#92400e', fontWeight: 700, textTransform: 'uppercase' }}>Leave</p>
+                  <div style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                    <p style={{ fontSize: isMobile ? '32px' : '42px', fontWeight: 900, color: '#1d4ed8', letterSpacing: '-0.02em', margin: 0 }}>₹{selectedSlip.netSalary?.toLocaleString() || 0}</p>
                   </div>
-                  <div style={{ textAlign: 'center', backgroundColor: '#eff6ff', padding: '12px 8px', borderRadius: '12px', border: '1px solid #dbeafe' }}>
-                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#2563eb' }}>{selectedSlip.halfDays || 0}</p>
-                    <p style={{ fontSize: '10px', color: '#1e40af', fontWeight: 700, textTransform: 'uppercase' }}>Half Day</p>
+                </div>
+
+                {/* Attendance Summary */}
+                <div 
+                  className="responsive-pdf-target"
+                  data-desktop-style='{"flexDirection": "row", "gap": "60px"}'
+                  style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '40px' : '60px', marginTop: '20px' }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <h4 style={{ fontSize: '11px', fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', marginBottom: '18px' }}>Attendance Summary</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                      <div style={{ backgroundColor: '#f0fdf4', border: '1.5px solid #dcfce7', padding: '14px', borderRadius: '16px', textAlign: 'center' }}>
+                        <p style={{ fontSize: '18px', fontWeight: 900, color: '#16a34a', margin: 0 }}>{selectedSlip.presentDays}</p>
+                        <p style={{ fontSize: '10px', color: '#166534', fontWeight: 800 }}>PRESENT</p>
+                      </div>
+                      <div style={{ backgroundColor: '#fef2f2', border: '1.5px solid #fee2e2', padding: '14px', borderRadius: '16px', textAlign: 'center' }}>
+                        <p style={{ fontSize: '18px', fontWeight: 900, color: '#dc2626', margin: 0 }}>{selectedSlip.absentDays}</p>
+                        <p style={{ fontSize: '10px', color: '#991b1b', fontWeight: 800 }}>ABSENT</p>
+                      </div>
+                      <div style={{ backgroundColor: '#eff6ff', border: '1.5px solid #dbeafe', padding: '14px', borderRadius: '16px', textAlign: 'center' }}>
+                        <p style={{ fontSize: '18px', fontWeight: 900, color: '#2563eb', margin: 0 }}>{selectedSlip.paidDays}</p>
+                        <p style={{ fontSize: '10px', color: '#1e40af', fontWeight: 800 }}>PAID</p>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ textAlign: 'center', backgroundColor: '#111827', padding: '12px 8px', borderRadius: '12px', border: '1px solid #374151' }}>
-                    <p style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>{selectedSlip.presentDays || 0}/{selectedSlip.paidDays || 0}</p>
-                    <p style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Total Paid</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: isMobile ? 'flex-start' : 'flex-end' }}>
+                    <div style={{ borderTop: '2.5px solid #111827', width: '220px', paddingTop: '12px', textAlign: 'center' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 900, color: '#111827', textTransform: 'uppercase' }}>Authorized Signatory</p>
+                      <p style={{ fontSize: '10px', color: '#6b7280', marginTop: '6px' }}>Digitally Verified Record</p>
+                    </div>
                   </div>
                 </div>
               </div>

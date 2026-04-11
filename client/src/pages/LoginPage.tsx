@@ -95,6 +95,8 @@ const LoginPage: React.FC = () => {
               <UserIcon size={17} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
               <input
                 type="text"
+                name="email"
+                autoComplete="username"
                 value={loginId}
                 onChange={e => setLoginId(e.target.value)}
                 placeholder="ADM001 or PI001"
@@ -124,6 +126,8 @@ const LoginPage: React.FC = () => {
               <Lock size={17} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
               <input
                 type={showPass ? 'text' : 'password'}
+                name="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
