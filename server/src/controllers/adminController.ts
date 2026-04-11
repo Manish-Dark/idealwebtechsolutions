@@ -303,6 +303,26 @@ const deleteCustomer = async (req: Request, res: Response) => {
   }
 };
 
+// @desc    Update customer
+// @route   PUT /api/admin/customers/:id
+// @access  Admin
+const updateCustomer = async (req: Request, res: Response) => {
+  const customer = await Customer.findById(req.params.id);
+  if (customer) {
+    customer.name = req.body.name || customer.name;
+    customer.email = req.body.email || customer.email;
+    customer.phone = req.body.phone || customer.phone;
+    customer.company = req.body.company || customer.company;
+    customer.address = req.body.address || customer.address;
+    customer.notes = req.body.notes || customer.notes;
+
+    const updatedCustomer = await customer.save();
+    res.json(updatedCustomer);
+  } else {
+    res.status(404).json({ message: 'Customer not found' });
+  }
+};
+
 // @desc    Get all student attendance records
 // @route   GET /api/admin/attendance
 // @access  Admin
@@ -456,6 +476,7 @@ export {
   addCustomer,
   getCustomers,
   deleteCustomer,
+  updateCustomer,
   getHolidays,
   deleteHoliday,
   getAllSiteVisits,

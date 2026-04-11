@@ -123,7 +123,7 @@ const AdminAttendancePage: React.FC = () => {
             </span>
           </div>
 
-          <div className="custom-scrollbar" style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '20px' }}>
+          <div className="custom-scrollbar" style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '20px', marginBottom: '10px' }}>
             <div
               onClick={() => setSelectedUserId(null)}
               style={{
@@ -172,7 +172,7 @@ const AdminAttendancePage: React.FC = () => {
         </div>
 
         {/* Bottom Pane: Attendance Table */}
-        <div className="glass-card table-wrap" style={{ padding: '0', height: 'fit-content' }}>
+        <div className="glass-card table-wrap custom-scrollbar" style={{ padding: '0', maxHeight: '550px', overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase' }}>

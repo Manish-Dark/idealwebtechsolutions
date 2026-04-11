@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Trash2, Users, Building2, Phone, Mail } from 'lucide-react';
+import { Trash2, Users, Building2, Phone, Mail, Edit2, X } from 'lucide-react';
 
 const AdminCustomersPage: React.FC = () => {
   const { user } = useAuth();
@@ -16,6 +16,8 @@ const AdminCustomersPage: React.FC = () => {
     address: '',
     notes: ''
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingCustomerId, setEditingCustomerId] = useState<string | null>(null);
 
   const fetchCustomers = useCallback(async () => {
     try {
@@ -33,16 +35,43 @@ const AdminCustomersPage: React.FC = () => {
     fetchCustomers();
   }, [fetchCustomers]);
 
-  const handleAddCustomer = async (e: React.FormEvent) => {
+  const handleEditClick = (customer: any) => {
+    setIsEditing(true);
+    setEditingCustomerId(customer._id);
+    setCustomerForm({
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      company: customer.company,
+      address: customer.address || '',
+      notes: customer.notes || ''
+    });
+    // Optional: Scroll to form
+    const formElement = document.getElementById('customer-form');
+    if (formElement) formElement.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditingCustomerId(null);
+    setCustomerForm({ name: '', email: '', phone: '', company: '', address: '', notes: '' });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.post('http://localhost:5000/api/admin/customers', customerForm, config);
-      alert('Customer added successfully!');
-      setCustomerForm({ name: '', email: '', phone: '', company: '', address: '', notes: '' });
+      if (isEditing && editingCustomerId) {
+        await axios.put(`http://localhost:5000/api/admin/customers/${editingCustomerId}`, customerForm, config);
+        alert('Customer updated successfully!');
+      } else {
+        await axios.post('http://localhost:5000/api/admin/customers', customerForm, config);
+        alert('Customer added successfully!');
+      }
+      handleCancelEdit();
       fetchCustomers();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to add customer');
+      alert(err.response?.data?.message || 'Failed to save customer');
     }
   };
 
@@ -75,13 +104,23 @@ const AdminCustomersPage: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '32px', alignItems: 'start' }}>
 
         {/* ADD CUSTOMER FORM */}
-        <div className="glass-card" style={{ height: 'fit-content' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-            <Users size={20} color="var(--primary)" />
-            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Add New Customer</h3>
+        <div className="glass-card" style={{ height: 'fit-content' }} id="customer-form">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Users size={20} color="var(--primary)" />
+              <h3 style={{ fontSize: '18px', fontWeight: 700 }}>{isEditing ? 'Update Customer' : 'Add New Customer'}</h3>
+            </div>
+            {isEditing && (
+              <button
+                onClick={handleCancelEdit}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 600 }}
+              >
+                <X size={16} /> Cancel
+              </button>
+            )}
           </div>
 
-          <form onSubmit={handleAddCustomer} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '13px', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Full Name</label>
               <input
@@ -137,7 +176,7 @@ const AdminCustomersPage: React.FC = () => {
               type="submit"
               style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '12px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: 'pointer', marginTop: '8px' }}
             >
-              Add Customer
+              {isEditing ? 'Update Customer' : 'Add Customer'}
             </button>
           </form>
         </div>
@@ -182,12 +221,22 @@ const AdminCustomersPage: React.FC = () => {
                         </div>
                       </td>
                       <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                        <button
-                          onClick={() => handleDeleteCustomer(c._id)}
-                          style={{ padding: '8px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                          <button
+                            onClick={() => handleEditClick(c)}
+                            style={{ padding: '8px', backgroundColor: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                            title="Edit Client"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCustomer(c._id)}
+                            style={{ padding: '8px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                            title="Delete Client"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -232,6 +281,13 @@ const AdminCustomersPage: React.FC = () => {
                 </div>
 
                 <div className="cust-card-actions">
+                  <button
+                    onClick={() => handleEditClick(c)}
+                    className="cust-action-btn"
+                    style={{ backgroundColor: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)' }}
+                  >
+                    <Edit2 size={18} /> Edit Client
+                  </button>
                   <button
                     onClick={() => handleDeleteCustomer(c._id)}
                     className="cust-action-btn"

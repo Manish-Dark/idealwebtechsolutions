@@ -76,7 +76,7 @@ const UserDashboard: React.FC = () => {
     <div style={{ padding: '0px' }}>
       <header style={{ marginBottom: '40px' }}>
         <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Hello, {user?.name} 👋</h1>
-        <p style={{ color: 'var(--text-muted)' }}>Welcome back to your employee dashboard. Have a productive day!</p>
+        <p style={{ color: '#000000' }}>Welcome back to your employee dashboard. Have a productive day!</p>
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 250px), 1fr))', gap: '24px', marginBottom: '40px' }}>

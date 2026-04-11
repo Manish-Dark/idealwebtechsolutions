@@ -66,7 +66,7 @@ const LoginPage: React.FC = () => {
           }}>
             <Lock size={24} color="white" strokeWidth={2.5} />
           </div>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '6px', letterSpacing: '-0.5px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#000000', marginBottom: '6px', letterSpacing: '-0.5px' }}>
             Welcome back
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Sign in to your CMS account</p>
@@ -88,11 +88,11 @@ const LoginPage: React.FC = () => {
 
           {/* Employee ID */}
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>
               EMPLOYEE ID
             </label>
             <div style={{ position: 'relative' }}>
-              <UserIcon size={17} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+              <UserIcon size={17} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
               <input
                 type="text"
                 value={loginId}
@@ -102,13 +102,14 @@ const LoginPage: React.FC = () => {
                 style={{ 
                   width: '100%', 
                   paddingLeft: '44px', 
-                  height: '50px', 
-                  borderRadius: '12px', 
+                  height: '52px', 
+                  borderRadius: '16px', 
                   fontSize: '15px', 
-                  border: '1.5px solid var(--border)', 
-                  background: 'var(--surface-2)', 
-                  color: 'var(--text-main)',
-                  transition: 'all 0.2s ease'
+                  border: '1.5px solid #E2E8F0', 
+                  background: '#F8FAFF', 
+                  color: '#1E293B',
+                  transition: 'all 0.2s ease',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
                 }}
               />
             </div>
@@ -116,11 +117,11 @@ const LoginPage: React.FC = () => {
 
           {/* Password */}
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', color: '#64748B', marginBottom: '8px' }}>
               PASSWORD
             </label>
             <div style={{ position: 'relative' }}>
-              <Lock size={17} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+              <Lock size={17} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
               <input
                 type={showPass ? 'text' : 'password'}
                 value={password}
@@ -131,19 +132,20 @@ const LoginPage: React.FC = () => {
                   width: '100%', 
                   paddingLeft: '44px', 
                   paddingRight: '44px', 
-                  height: '50px', 
-                  borderRadius: '12px', 
+                  height: '52px', 
+                  borderRadius: '16px', 
                   fontSize: '15px', 
-                  border: '1.5px solid var(--border)', 
-                  background: 'var(--surface-2)', 
-                  color: 'var(--text-main)',
-                  transition: 'all 0.2s ease'
+                  border: '1.5px solid #E2E8F0', 
+                  background: '#F8FAFF', 
+                  color: '#1E293B',
+                  transition: 'all 0.2s ease',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
                 }}
               />
               <button
                 type="button"
                 onClick={() => setShowPass(p => !p)}
-                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex', alignItems: 'center' }}
+                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: '4px', display: 'flex', alignItems: 'center' }}
               >
                 {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>

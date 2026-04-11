@@ -563,7 +563,8 @@ textarea::placeholder {
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 15px;
+  height: 15px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -571,8 +572,14 @@ textarea::placeholder {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--sidebar-border);
+  background: rgba(99, 102, 241, 0.2);
   border-radius: 99px;
+  transition: background 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+  background: var(--primary);
 }
 
 /* ══ Page entrance ══ */

@@ -172,120 +172,123 @@ const AdminTasksPage: React.FC = () => {
             <h3 className="responsive-h3" style={{ fontWeight: 700 }}>Deployment Pipeline</h3>
           </div>
 
-          {/* Table View (Desktop) */}
-          <div className="task-table-container">
-            <div className="table-wrap">
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase' }}>
-                    <th style={{ padding: '16px 24px' }}>Task</th>
-                    <th style={{ padding: '16px 24px' }}>Assigned To</th>
-                    <th style={{ padding: '16px 24px' }}>Deadline</th>
-                    <th style={{ padding: '16px 24px' }}>Progress</th>
-                    <th style={{ padding: '16px 24px', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tasks.map(t => (
-                    <tr key={t._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '16px 24px' }}>
-                        <p style={{ fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>{t.title}</p>
-                        <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t.description.substring(0, 40)}{t.description.length > 40 && '...'}</p>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <UserIcon size={14} color="var(--text-muted)" />
-                          <span style={{ fontSize: '13px', fontWeight: 500 }}>{t.assignedTo?.name || 'Unassigned'}</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: new Date(t.deadline) < new Date() && t.progress < 100 ? 'var(--error)' : 'var(--text-main)' }}>
-                          {new Date(t.deadline) < new Date() && t.progress < 100 && <AlertCircle size={14} />}
-                          <span style={{ fontSize: '13px', fontWeight: 500 }}>{new Date(t.deadline).toLocaleDateString()}</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span style={{ fontWeight: 700, fontSize: '14px', width: '38px' }}>{t.progress || 0}%</span>
-                          <div style={{ flex: 1, height: '6px', backgroundColor: 'var(--border)', borderRadius: '10px', overflow: 'hidden', minWidth: '60px' }}>
-                            <div style={{ height: '100%', width: `${t.progress || 0}%`, backgroundColor: getProgressColor(t.progress || 0), transition: 'all 0.5s ease' }}></div>
+          {/* Scrollable Container */}
+          <div className="custom-scrollbar" style={{ maxHeight: '520px', overflowY: 'auto' }}>
+            {/* Table View (Desktop) */}
+            <div className="task-table-container">
+              <div className="table-wrap custom-scrollbar" style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase' }}>
+                      <th style={{ padding: '16px 24px' }}>Task</th>
+                      <th style={{ padding: '16px 24px' }}>Assigned To</th>
+                      <th style={{ padding: '16px 24px' }}>Deadline</th>
+                      <th style={{ padding: '16px 24px' }}>Progress</th>
+                      <th style={{ padding: '16px 24px', textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody style={{ position: 'relative' }}>
+                    {tasks.map(t => (
+                      <tr key={t._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '16px 24px' }}>
+                          <p style={{ fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>{t.title}</p>
+                          <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t.description.substring(0, 40)}{t.description.length > 40 && '...'}</p>
+                        </td>
+                        <td style={{ padding: '16px 24px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <UserIcon size={14} color="var(--text-muted)" />
+                            <span style={{ fontSize: '13px', fontWeight: 500 }}>{t.assignedTo?.name || 'Unassigned'}</span>
                           </div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                        <button
-                          onClick={() => handleDeleteTask(t._id)}
-                          style={{ padding: '8px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {tasks.length === 0 && (
-                    <tr>
-                      <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No tasks have been deployed yet.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                        </td>
+                        <td style={{ padding: '16px 24px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: new Date(t.deadline) < new Date() && t.progress < 100 ? 'var(--error)' : 'var(--text-main)' }}>
+                            {new Date(t.deadline) < new Date() && t.progress < 100 && <AlertCircle size={14} />}
+                            <span style={{ fontSize: '13px', fontWeight: 500 }}>{new Date(t.deadline).toLocaleDateString()}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px 24px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span style={{ fontWeight: 700, fontSize: '14px', width: '38px' }}>{t.progress || 0}%</span>
+                            <div style={{ flex: 1, height: '6px', backgroundColor: 'var(--border)', borderRadius: '10px', overflow: 'hidden', minWidth: '60px' }}>
+                              <div style={{ height: '100%', width: `${t.progress || 0}%`, backgroundColor: getProgressColor(t.progress || 0), transition: 'all 0.5s ease' }}></div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                          <button
+                            onClick={() => handleDeleteTask(t._id)}
+                            style={{ padding: '8px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {tasks.length === 0 && (
+                      <tr>
+                        <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No tasks have been deployed yet.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
-          {/* Card View (Mobile) */}
-          <div className="task-mobile-cards">
-            {tasks.length === 0 ? (
-              <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No tasks assigned.</div>
-            ) : (
-              tasks.map(t => (
-                <div key={t._id} className="task-item-card animate-scale">
-                  <div className="task-card-header">
-                    <div style={{ minWidth: 0 }}>
-                      <p className="task-card-title">{t.title}</p>
-                      <div className="task-card-assignee">
-                        <UserIcon size={12} />
-                        <span>{t.assignedTo?.name || 'Unassigned'}</span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteTask(t._id)}
-                      style={{ padding: '8px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', borderRadius: '8px' }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-
-                  <p className="task-card-desc">
-                    {t.description.substring(0, 100)}{t.description.length > 100 && '...'}
-                  </p>
-
-                  <div className="task-card-footer">
-                    <div className="task-progress-container">
-                      <div className="task-progress-info">
-                        <div className="task-deadline">
-                          Due: {new Date(t.deadline).toLocaleDateString()}
-                          {new Date(t.deadline) < new Date() && t.progress < 100 && (
-                            <span style={{ color: 'var(--error)', marginLeft: '8px' }}>Overdue</span>
-                          )}
+            {/* Card View (Mobile) */}
+            <div className="task-mobile-cards">
+              {tasks.length === 0 ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No tasks assigned.</div>
+              ) : (
+                tasks.map(t => (
+                  <div key={t._id} className="task-item-card animate-scale">
+                    <div className="task-card-header">
+                      <div style={{ minWidth: 0 }}>
+                        <p className="task-card-title">{t.title}</p>
+                        <div className="task-card-assignee">
+                          <UserIcon size={12} />
+                          <span>{t.assignedTo?.name || 'Unassigned'}</span>
                         </div>
-                        <span className="task-progress-percent" style={{ color: getProgressColor(t.progress || 0) }}>
-                          {t.progress || 0}%
-                        </span>
                       </div>
-                      <div className="task-progress-bar-bg">
-                        <div
-                          className="task-progress-bar-fill"
-                          style={{
-                            width: `${t.progress || 0}%`,
-                            backgroundColor: getProgressColor(t.progress || 0)
-                          }}
-                        />
+                      <button
+                        onClick={() => handleDeleteTask(t._id)}
+                        style={{ padding: '8px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', borderRadius: '8px' }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <p className="task-card-desc">
+                      {t.description.substring(0, 100)}{t.description.length > 100 && '...'}
+                    </p>
+
+                    <div className="task-card-footer">
+                      <div className="task-progress-container">
+                        <div className="task-progress-info">
+                          <div className="task-deadline">
+                            Due: {new Date(t.deadline).toLocaleDateString()}
+                            {new Date(t.deadline) < new Date() && t.progress < 100 && (
+                              <span style={{ color: 'var(--error)', marginLeft: '8px' }}>Overdue</span>
+                            )}
+                          </div>
+                          <span className="task-progress-percent" style={{ color: getProgressColor(t.progress || 0) }}>
+                            {t.progress || 0}%
+                          </span>
+                        </div>
+                        <div className="task-progress-bar-bg">
+                          <div
+                            className="task-progress-bar-fill"
+                            style={{
+                              width: `${t.progress || 0}%`,
+                              backgroundColor: getProgressColor(t.progress || 0)
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>

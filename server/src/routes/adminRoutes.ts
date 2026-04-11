@@ -15,6 +15,7 @@ import {
   addCustomer,
   getCustomers,
   deleteCustomer,
+  updateCustomer,
   getHolidays,
   deleteHoliday,
   getAllSiteVisits,
@@ -37,7 +38,7 @@ router.use(admin);
 router.route('/users').get(getUsers);
 router.route('/users/:id').delete(deleteUser).put(updateUser);
 router.route('/customers').get(getCustomers).post(addCustomer);
-router.route('/customers/:id').delete(deleteCustomer);
+router.route('/customers/:id').delete(deleteCustomer).put(updateCustomer);
 router.route('/leaves').get(getAllLeaves);
 router.route('/leaves/:id').put(updateLeaveStatus);
 router.route('/balances/global').put(updateGlobalBalances);

@@ -89,7 +89,7 @@ const AdminDashboard: React.FC = () => {
       <header style={{ marginBottom: '40px' }}>
         <div>
           <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Admin Overview</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Welcome back, {user?.name}. Here is what's happening today.</p>
+          <p style={{ color: '#000000' }}>Welcome back, {user?.name}. Here is what's happening today.</p>
         </div>
       </header>
 
