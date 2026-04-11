@@ -126,6 +126,12 @@ const AdminSalaryPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const data = {
+      ...formData,
+      grossEarning,
+      netSalary
+    };
+
     try {
       if (editingSlipId) {
         await api.put(`/api/admin/salary/${editingSlipId}`, data);

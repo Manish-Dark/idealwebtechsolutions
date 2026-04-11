@@ -39,7 +39,7 @@ const ConveyancePage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/api/users/conveyance', submissionData);
+      await api.post('/api/users/conveyance', formData);
       alert('Claim submitted successfully!');
       setShowAddModal(false);
       setFormData({
