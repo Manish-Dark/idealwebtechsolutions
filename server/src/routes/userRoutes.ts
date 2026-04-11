@@ -23,6 +23,12 @@ import { protect, admin } from '../middleware/auth.js';
 const router = express.Router();
 
 // Public routes
+router.get('/login', (req, res) => {
+  res.status(200).json({ 
+    message: 'Login endpoint is active. Please use POST request with email and password to login.',
+    method: 'GET'
+  });
+});
 router.post('/login', authUser);
 
 // Private routes (All users)
