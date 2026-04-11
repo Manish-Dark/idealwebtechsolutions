@@ -178,6 +178,14 @@ const AttendancePage: React.FC = () => {
     return acc + count;
   }, 0);
 
+  const checkInTimestamp = todayAttendance?.checkIn ? new Date(todayAttendance.checkIn).getTime() : 0;
+  const thirtyMinutes = 30 * 60 * 1000;
+  const timeDiff = currentTime.getTime() - checkInTimestamp;
+  const isSafetyPeriodOver = timeDiff >= thirtyMinutes;
+
+  const remainingMs = Math.max(0, thirtyMinutes - timeDiff);
+  const countdownText = `${Math.floor(remainingMs / 60000)}:${String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, '0')}`;
+
   return (
     <div className="attendance-page-container" style={{ padding: 'var(--page-padding)' }}>
       <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
@@ -197,10 +205,25 @@ const AttendancePage: React.FC = () => {
           ) : !todayAttendance.checkOut ? (
             <button
               onClick={() => handleAttendance('check-out')}
-              style={{ backgroundColor: '#ef4444', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.2s ease' }}
+              disabled={!isSafetyPeriodOver}
+              style={{ 
+                backgroundColor: isSafetyPeriodOver ? '#ef4444' : '#94a3b8', 
+                color: 'white', 
+                padding: '12px 24px', 
+                borderRadius: '12px', 
+                fontWeight: 700, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '10px', 
+                boxShadow: isSafetyPeriodOver ? '0 4px 12px rgba(239, 68, 68, 0.3)' : 'none', 
+                border: 'none', 
+                cursor: isSafetyPeriodOver ? 'pointer' : 'not-allowed', 
+                transition: 'all 0.2s ease',
+                opacity: isSafetyPeriodOver ? 1 : 0.8
+              }}
             >
               <LogOut size={20} />
-              Check Out
+              {isSafetyPeriodOver ? 'Check Out' : `Wait ${countdownText}`}
             </button>
           ) : (
             <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '12px 24px', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
