@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Plus, X, CheckCircle, User, DollarSign, AlertCircle, Search, Users, Edit, Trash2 } from 'lucide-react';
+import { Plus, X, CheckCircle, Search, Users, Edit, Trash2 } from 'lucide-react';
 
 const AdminSalaryPage: React.FC = () => {
   const { user } = useAuth();
@@ -51,6 +51,21 @@ const AdminSalaryPage: React.FC = () => {
   useEffect(() => {
     fetchEmployees();
   }, [fetchEmployees]);
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (showAddModal) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = '100vh';
+    } else {
+      document.body.style.overflow = 'unset';
+      document.body.style.height = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.body.style.height = 'unset';
+    };
+  }, [showAddModal]);
 
   // Auto-fill Logic
   const handleEmployeeSelect = (empId: string) => {
@@ -398,153 +413,187 @@ const AdminSalaryPage: React.FC = () => {
       </div>
 
       {showAddModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '850px', padding: '28px', maxHeight: '100%', overflowY: 'auto', borderRadius: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <div>
-                <h3 style={{ fontSize: '24px', fontWeight: 700 }}>{editingSlipId ? 'Update Salary Slip' : 'Generate Salary Slip'}</h3>
-                <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{editingSlipId ? 'Modify the salary details below.' : 'Select an employee and enter salary details for calculations.'}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  setEditingSlipId(null);
-                  setFormData({
-                    user: '',
-                    employeeId: '',
-                    name: '',
-                    designation: '',
-                    department: '',
-                    month: new Date().toLocaleString('default', { month: 'long' }),
-                    year: new Date().getFullYear(),
-                    paidDays: '30',
-                    presentDays: '30',
-                    absentDays: '0',
-                    leaveDays: '0',
-                    halfDays: '0',
-                    basicSalary: '',
-                    hra: '',
-                    conveyance: '',
-                    totalDeduction: '',
-                  });
-                }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
-              >
-                <X size={24} />
-              </button>
+        <div className="responsive-modal-overlay">
+          <div className="glass-card responsive-modal-container">
+            {/* Close Button - Absolute Positioned */}
+            <button
+              onClick={() => {
+                setShowAddModal(false);
+                setEditingSlipId(null);
+                setFormData({
+                  user: '',
+                  employeeId: '',
+                  name: '',
+                  designation: '',
+                  department: '',
+                  month: new Date().toLocaleString('default', { month: 'long' }),
+                  year: new Date().getFullYear(),
+                  paidDays: '30',
+                  presentDays: '30',
+                  absentDays: '0',
+                  leaveDays: '0',
+                  halfDays: '0',
+                  basicSalary: '',
+                  hra: '',
+                  conveyance: '',
+                  totalDeduction: '',
+                });
+              }}
+              className="modal-close-btn"
+              style={{ 
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                width: '40px', 
+                height: '40px', 
+                borderRadius: '12px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                backgroundColor: 'var(--surface-2)', 
+                border: '1px solid var(--border)', 
+                color: 'var(--text-main)', 
+                cursor: 'pointer', 
+                transition: 'all 0.2s ease',
+                zIndex: 100
+              }}
+              title="Close Modal"
+            >
+              <X size={20} />
+            </button>
+
+            {/* 1. Header (Grid Row 1) */}
+            <div style={{ marginBottom: '24px', padding: '32px 32px 0' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 700 }}>{editingSlipId ? 'Edit Salary Slip' : 'Add New Salary Slip'}</h3>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', maxWidth: '85%' }}>{editingSlipId ? 'Update profile details and company status.' : 'Fill in the details to create a new salary record.'}</p>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '30px' }}>
-              {/* Step 1: Employee Selection */}
-              <div style={{ padding: '20px', backgroundColor: 'rgba(0, 102, 255, 0.02)', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                <h4 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}><User size={18} color="var(--primary)" /> Employee Information</h4>
-                <div className="responsive-grid-3" style={{ gap: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Select Employee</label>
-                    <select required value={formData.user} onChange={(e) => handleEmployeeSelect(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
-                      <option value="">Choose Employee...</option>
-                      {employees.map(emp => (
-                        <option key={emp._id} value={emp._id}>{emp.name} (#{emp.employeeId})</option>
-                      ))}
-                    </select>
+            {/* 2. Form (Grid Row 2+) */}
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateRows: 'minmax(0, 1fr) auto', overflow: 'hidden', height: '100%' }}>
+              <div className="modal-body-scroll custom-scrollbar" style={{ padding: '0 28px 28px', minHeight: 0 }}>
+                <div style={{ display: 'grid', gap: '24px' }}>
+                  {/* Step 1: Employee Selection */}
+                  <div style={{ display: 'grid', gap: '16px' }}>
+                    <h4 style={{ fontSize: '14px', fontWeight: 600, borderLeft: '3px solid var(--primary)', paddingLeft: '10px' }}>Employee Selection</h4>
+                    <div className="responsive-grid-3" style={{ gap: '16px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Select Employee</label>
+                        <select required value={formData.user} onChange={(e) => handleEmployeeSelect(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+                          <option value="">Choose Employee...</option>
+                          {employees.map(emp => (
+                            <option key={emp._id} value={emp._id}>{emp.name} (#{emp.employeeId})</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Employee Name</label>
+                        <input type="text" readOnly value={formData.name} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'rgba(0,0,0,0.02)', color: 'var(--text-muted)' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Employee ID</label>
+                        <input type="text" readOnly value={formData.employeeId} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'rgba(0,0,0,0.02)', color: 'var(--text-muted)' }} />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Employee Name</label>
-                    <input type="text" readOnly value={formData.name} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'rgba(0,0,0,0.02)', color: 'var(--text-muted)' }} />
+
+                  {/* Step 2: Pay Period */}
+                  <div style={{ display: 'grid', gap: '16px' }}>
+                    <h4 style={{ fontSize: '14px', fontWeight: 600, borderLeft: '3px solid var(--primary)', paddingLeft: '10px' }}>Pay Period Information</h4>
+                    <div className="responsive-grid-3" style={{ gap: '16px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Period (Month/Year)</label>
+                        <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                          <div style={{ flex: '3 1 0%', minWidth: 0 }}>
+                            <select value={formData.month} onChange={(e) => setFormData({ ...formData, month: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+                              {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => <option key={m}>{m}</option>)}
+                            </select>
+                          </div>
+                          <div style={{ flex: '2 1 0%', minWidth: 0 }}>
+                            <input type="number" placeholder="Year" value={formData.year} onChange={(e) => setFormData({ ...formData, year: Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Designation</label>
+                        <input type="text" readOnly value={formData.designation} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'rgba(0,0,0,0.02)', color: 'var(--text-muted)' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Department</label>
+                        <input type="text" readOnly value={formData.department} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'rgba(0,0,0,0.02)', color: 'var(--text-muted)' }} />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Employee ID</label>
-                    <input type="text" readOnly value={formData.employeeId} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'rgba(0,0,0,0.02)', color: 'var(--text-muted)' }} />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Designation</label>
-                    <input type="text" readOnly value={formData.designation} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'rgba(0,0,0,0.02)', color: 'var(--text-muted)' }} />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Department</label>
-                    <input type="text" readOnly value={formData.department} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'rgba(0,0,0,0.02)', color: 'var(--text-muted)' }} />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>Period (Month/Year)</label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <select value={formData.month} onChange={(e) => setFormData({ ...formData, month: e.target.value })} style={{ flex: 2, padding: '12px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)' }}>
-                        {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => <option key={m}>{m}</option>)}
-                      </select>
-                      <input type="number" value={formData.year} onChange={(e) => setFormData({ ...formData, year: Number(e.target.value) })} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
+
+                  {/* Step 3: Salary Components */}
+                  <div className="responsive-grid-2" style={{ gap: '24px' }}>
+                    {/* Earnings */}
+                    <div style={{ display: 'grid', gap: '16px' }}>
+                      <h4 style={{ fontSize: '14px', fontWeight: 600, borderLeft: '3px solid var(--primary)', paddingLeft: '10px' }}>Earning Details</h4>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Basic Salary</label>
+                        <input type="number" required value={formData.basicSalary} onChange={(e) => setFormData({ ...formData, basicSalary: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                      </div>
+                      <div className="responsive-grid-2" style={{ gap: '12px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>HRA</label>
+                          <input type="number" value={formData.hra} onChange={(e) => setFormData({ ...formData, hra: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Conveyance</label>
+                          <input type="number" value={formData.conveyance} onChange={(e) => setFormData({ ...formData, conveyance: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                        </div>
+                      </div>
+                      <div style={{ marginTop: '10px', padding: '16px', backgroundColor: 'rgba(16, 185, 129, 0.05)', borderRadius: '12px', border: '1px dashed var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 700, fontSize: '13px' }}>Gross Earning:</span>
+                        <span style={{ fontWeight: 800, fontSize: '18px', color: 'var(--success)' }}>₹{grossEarning.toLocaleString()}</span>
+                      </div>
+                    </div>
+
+                    {/* Deductions */}
+                    <div style={{ display: 'grid', gap: '16px' }}>
+                      <h4 style={{ fontSize: '14px', fontWeight: 600, borderLeft: '3px solid var(--primary)', paddingLeft: '10px' }}>Attendance & Deductions</h4>
+                      <div className="responsive-grid-2" style={{ display: 'grid', gap: '12px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Present Days</label>
+                          <input type="number" value={formData.presentDays} onChange={(e) => setFormData({ ...formData, presentDays: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Absent Days</label>
+                          <input type="number" value={formData.absentDays} onChange={(e) => setFormData({ ...formData, absentDays: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Leave Days</label>
+                          <input type="number" value={formData.leaveDays} onChange={(e) => setFormData({ ...formData, leaveDays: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Half Days</label>
+                          <input type="number" value={formData.halfDays} onChange={(e) => setFormData({ ...formData, halfDays: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Total Deduction (Tax, Unpaid Leaves, etc.)</label>
+                        <input type="number" value={formData.totalDeduction} onChange={(e) => setFormData({ ...formData, totalDeduction: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Step 2: Earnings and Deductions */}
-              <div className="responsive-grid-2" style={{ gap: '24px' }}>
-                {/* Earnings */}
-                <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--border)', backgroundColor: 'rgba(16, 185, 129, 0.02)' }}>
-                  <h4 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--success)' }}><DollarSign size={18} /> Earning Details</h4>
-                  <div style={{ display: 'grid', gap: '16px' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Basic Salary</label>
-                      <input type="number" required value={formData.basicSalary} onChange={(e) => setFormData({ ...formData, basicSalary: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>HRA</label>
-                      <input type="number" value={formData.hra} onChange={(e) => setFormData({ ...formData, hra: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Conveyance</label>
-                      <input type="number" value={formData.conveyance} onChange={(e) => setFormData({ ...formData, conveyance: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
-                    </div>
-                    <div style={{ marginTop: '10px', padding: '16px', backgroundColor: 'var(--surface)', borderRadius: '12px', border: '1px dashed var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 700, fontSize: '14px' }}>Gross Earning:</span>
-                      <span style={{ fontWeight: 800, fontSize: '18px', color: 'var(--success)' }}>₹{grossEarning.toLocaleString()}</span>
-                    </div>
+              {/* Sticky Footer */}
+              <div className="modal-footer-sticky">
+                <div className="footer-layout-container">
+                  <div className="footer-summary-box">
+                    <span className="summary-label">Net Salary:</span>
+                    <span className="summary-value">₹{netSalary.toLocaleString()}</span>
+                  </div>
+                  <div className="modal-footer-btns">
+                    <button type="button" className="footer-cancel-btn" onClick={() => setShowAddModal(false)}>Cancel</button>
+                    <button type="submit" className="footer-submit-btn">
+                      <CheckCircle size={20} />
+                      <span>{editingSlipId ? 'Update' : 'Generate'} Pay Slip</span>
+                    </button>
                   </div>
                 </div>
-
-                {/* Deductions */}
-                <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--border)', backgroundColor: 'rgba(239, 68, 68, 0.02)' }}>
-                  <h4 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--error)' }}><AlertCircle size={18} /> Attendance & Deduction Details</h4>
-                  <div style={{ display: 'grid', gap: '16px' }}>
-                    <div className="responsive-grid-2" style={{ display: 'grid', gap: '12px' }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Present Days</label>
-                        <input type="number" value={formData.presentDays} onChange={(e) => setFormData({ ...formData, presentDays: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Absent Days</label>
-                        <input type="number" value={formData.absentDays} onChange={(e) => setFormData({ ...formData, absentDays: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Leave Days</label>
-                        <input type="number" value={formData.leaveDays} onChange={(e) => setFormData({ ...formData, leaveDays: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Half Days</label>
-                        <input type="number" value={formData.halfDays} onChange={(e) => setFormData({ ...formData, halfDays: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
-                      </div>
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Total Paid Days Formula</label>
-                      <input type="number" value={formData.paidDays} onChange={(e) => setFormData({ ...formData, paidDays: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--text-muted)' }}>Total Deduction (Tax, Unpaid Leaves, etc.)</label>
-                      <input type="number" value={formData.totalDeduction} onChange={(e) => setFormData({ ...formData, totalDeduction: e.target.value === '' ? '' : Number(e.target.value) })} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)' }} />
-                    </div>
-                    <div style={{ marginTop: '10px', padding: '16px', backgroundColor: 'var(--surface)', borderRadius: '12px', border: '1px dashed var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 700, fontSize: '14px' }}>Net Salary:</span>
-                      <span style={{ fontWeight: 800, fontSize: '18px', color: 'var(--primary)' }}>₹{netSalary.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end', marginTop: '10px' }}>
-                <button type="button" onClick={() => setShowAddModal(false)} style={{ padding: '14px 28px', borderRadius: '12px', fontWeight: 600, border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer' }}>Cancel</button>
-                <button type="submit" style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '14px 40px', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <CheckCircle size={20} />
-                  Generate Pay Slip
-                </button>
               </div>
             </form>
           </div>

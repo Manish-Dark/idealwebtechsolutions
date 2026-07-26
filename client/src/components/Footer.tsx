@@ -11,9 +11,9 @@ const Footer: React.FC = () => {
         <div className="footer-center">
           <p className="footer-copy">
             Made with <Heart size={12} className="footer-heart" /> by{' '}
-            <strong style={{ color: 'var(--primary)' }}>Manish Dark</strong>
+            <strong style={{ color: 'var(--primary)' }}>Ideal Webtech Solutions</strong>
           </p>
-          <p className="footer-rights">© 2026 Manish Dark. All rights reserved.</p>
+          <p className="footer-rights">© 2026 Ideal Webtech Solutions. All rights reserved.</p>
         </div>
 
         {/* Right: Social Links */}

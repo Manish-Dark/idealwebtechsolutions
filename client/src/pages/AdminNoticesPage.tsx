@@ -70,7 +70,7 @@ const AdminNoticesPage: React.FC = () => {
         <p style={{ color: 'var(--text-muted)' }}>Broadcast official company announcements to all employees.</p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '32px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', alignItems: 'start' }}>
 
         {/* ADD NOTICE FORM */}
         <div className="glass-card" style={{ height: 'fit-content' }}>

@@ -111,7 +111,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '20px' }}>
         {shortcuts.map(item => (
           <div
             key={item.path}
@@ -122,9 +122,10 @@ const AdminDashboard: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              gap: '12px',
               transition: 'all 0.2s ease',
               border: item.badge ? '1.5px solid var(--warning)' : '1.5px solid var(--border)',
-              padding: '24px'
+              padding: '20px'
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
@@ -135,11 +136,11 @@ const AdminDashboard: React.FC = () => {
               e.currentTarget.style.borderColor = item.badge ? 'var(--warning)' : 'var(--border)';
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0, flex: 1 }}>
               <div style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '16px',
+                width: '48px',
+                height: '48px',
+                borderRadius: '14px',
                 backgroundColor: `${item.color}10`,
                 color: item.color,
                 display: 'flex',
@@ -150,16 +151,16 @@ const AdminDashboard: React.FC = () => {
                 {item.icon}
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <h3 style={{ fontWeight: 700, fontSize: '18px' }}>{item.title}</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <h3 style={{ fontWeight: 700, fontSize: '16px' }}>{item.title}</h3>
                   {item.badge && <span style={{ backgroundColor: 'var(--warning)', color: 'white', fontSize: '10px', padding: '2px 8px', borderRadius: '10px', textTransform: 'uppercase', fontWeight: 700 }}>{item.badge}</span>}
                 </div>
-                <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.desc}</p>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.desc}</p>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-              <span style={{ fontSize: '20px', fontWeight: 800 }}>{item.count}</span>
-              <ChevronRight size={20} color="var(--text-muted)" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+              <span style={{ fontSize: '18px', fontWeight: 800 }}>{item.count}</span>
+              <ChevronRight size={18} color="var(--text-muted)" />
             </div>
           </div>
         ))}

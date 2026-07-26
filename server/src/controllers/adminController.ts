@@ -9,6 +9,7 @@ import Customer from '../models/Customer.js';
 import SiteVisit from '../models/SiteVisit.js';
 import Notice from '../models/Notice.js';
 import Conveyance from '../models/Conveyance.js';
+import Invoice from '../models/Invoice.js';
 
 // @desc    Get all users
 // @route   GET /api/admin/users
@@ -441,6 +442,72 @@ const getAllConveyances = async (req: Request, res: Response) => {
   }
 };
 
+// @desc    Get all invoices
+// @route   GET /api/admin/invoices
+// @access  Admin
+const getAllInvoices = async (req: Request, res: Response) => {
+  try {
+    const invoices = await Invoice.find({}).sort({ createdAt: -1 });
+    res.json(invoices);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Create new invoice
+// @route   POST /api/admin/invoices
+// @access  Admin
+const createInvoice = async (req: Request, res: Response) => {
+  try {
+    const data = { ...req.body };
+
+    // Clean empty date strings that cause Mongoose Date cast errors
+    if (!data.challanDate || data.challanDate === '') delete data.challanDate;
+    if (!data.invoiceDate || data.invoiceDate === '') delete data.invoiceDate;
+
+    // Sanitize item fields
+    if (data.items && Array.isArray(data.items)) {
+      data.items = data.items.map((item: any) => ({
+        ...item,
+        name: item.name?.trim() ? item.name : 'Item',
+        hsnSac: item.hsnSac?.trim() ? item.hsnSac : '-',
+        qty: Number(item.qty) || 0,
+        rate: Number(item.rate) || 0,
+        taxableValue: Number(item.taxableValue) || 0,
+        igstPercent: Number(item.igstPercent) || 0,
+        igstAmount: Number(item.igstAmount) || 0,
+        total: Number(item.total) || 0,
+      }));
+    }
+
+    const invoice = await Invoice.create(data);
+    res.status(201).json(invoice);
+  } catch (error: any) {
+    console.error('Invoice creation error:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ message: `Invoice number "${req.body.invoiceNo}" already exists.` });
+    }
+    res.status(400).json({ message: error.message || 'Invalid invoice data' });
+  }
+};
+
+// @desc    Delete an invoice
+// @route   DELETE /api/admin/invoices/:id
+// @access  Admin
+const deleteInvoice = async (req: Request, res: Response) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id);
+    if (invoice) {
+      await invoice.deleteOne();
+      res.json({ message: 'Invoice removed' });
+    } else {
+      res.status(404).json({ message: 'Invoice not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // @desc    Update conveyance status
 // @route   PUT /api/admin/conveyance/:id
 // @access  Admin
@@ -487,5 +554,10 @@ export {
   updateSalarySlip,
   deleteSalarySlip,
   getAllConveyances,
-  updateConveyanceStatus
+  updateConveyanceStatus,
+  
+  // Invoice Functions
+  getAllInvoices,
+  createInvoice,
+  deleteInvoice
 };

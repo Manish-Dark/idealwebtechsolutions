@@ -109,7 +109,7 @@ const AdminAttendancePage: React.FC = () => {
         </div>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '32px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', alignItems: 'start' }}>
         {/* Top/Left Pane: Employee List */}
         <div className="glass-card employee-selection-pane" style={{ padding: '24px', maxHeight: '300px', overflowY: 'visible', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>

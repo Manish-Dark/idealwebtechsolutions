@@ -85,7 +85,7 @@ const AdminTasksPage: React.FC = () => {
         </div>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '32px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', alignItems: 'start' }}>
 
         {/* ASSIGN TASK MODULE */}
         <div className="glass-card" style={{ height: 'fit-content' }}>

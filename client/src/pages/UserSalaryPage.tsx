@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useLogo } from '../hooks/useLogo';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FileText, DollarSign, Eye, X, Activity, Briefcase, Download } from 'lucide-react';
@@ -7,6 +8,7 @@ import { jsPDF } from 'jspdf';
 
 const UserSalaryPage: React.FC = () => {
   const { user } = useAuth();
+  const logoUrl = useLogo();
   const [salarySlips, setSalarySlips] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSlip, setSelectedSlip] = useState<any | null>(null);
@@ -311,7 +313,11 @@ const UserSalaryPage: React.FC = () => {
                 {/* Official Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px', borderBottom: '3px solid #111827', paddingBottom: '24px' }}>
                   <div>
-                    <h1 style={{ fontSize: isMobile ? '28px' : '36px', fontWeight: 900, color: '#111827', letterSpacing: '-0.04em', marginBottom: '2px' }}>CMS</h1>
+                    {logoUrl ? (
+                      <img src={logoUrl} alt="CMS Logo" style={{ height: isMobile ? '24px' : '28px', backgroundColor: 'white', padding: '4px 8px', borderRadius: '4px', marginBottom: '8px', objectFit: 'contain' }} />
+                    ) : (
+                      <div style={{ height: isMobile ? '24px' : '28px', width: '80px', backgroundColor: 'white', marginBottom: '8px', borderRadius: '4px' }} />
+                    )}
                     <p style={{ fontSize: '11px', fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Payroll Management System</p>
                     <p style={{ fontSize: '10px', color: '#6b7280', marginTop: '6px', fontWeight: 500 }}>Confidential Official Remuneration Statement</p>
                   </div>

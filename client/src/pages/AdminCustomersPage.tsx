@@ -98,7 +98,7 @@ const AdminCustomersPage: React.FC = () => {
         </div>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '32px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', alignItems: 'start' }}>
 
         {/* ADD CUSTOMER FORM */}
         <div className="glass-card" style={{ height: 'fit-content' }} id="customer-form">

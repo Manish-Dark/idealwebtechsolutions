@@ -1,9 +1,10 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useLogo } from '../hooks/useLogo';
 import {
   LayoutDashboard, Users, Calendar, CheckSquare, LogOut,
   User, FileText, MapPin, CreditCard, Briefcase, Building2,
-  Megaphone, Activity, Car, Sun, Moon, X
+  Megaphone, Activity, Car, Sun, Moon, X, Receipt
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -17,12 +18,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const logoUrl = useLogo();
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
   const adminLinks = [
     { name: 'Dashboard',   icon: <LayoutDashboard size={18} />, path: '/admin' },
     { name: 'Customers',   icon: <Building2 size={18} />,       path: '/admin/customers' },
+    { name: 'Invoices',    icon: <Receipt size={18} />,         path: '/admin/invoices' },
     { name: 'Employees',   icon: <Users size={18} />,           path: '/admin/employees' },
     { name: 'Attendance',  icon: <Activity size={18} />,        path: '/admin/attendance' },
     { name: 'Site Visits', icon: <MapPin size={18} />,          path: '/admin/site-visits' },
@@ -78,34 +81,43 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Logo Area */}
       <div style={{
-        padding: '24px 20px 18px',
+        padding: '18px 14px',
         borderBottom: '1px solid var(--sidebar-border)',
         flexShrink: 0,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        gap: '8px',
         position: 'relative',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '42px', height: '42px', borderRadius: '13px',
-            background: 'rgba(255,255,255,0.22)',
-            backdropFilter: 'blur(8px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '14px', fontWeight: 900, color: 'white',
-            letterSpacing: '0.5px',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3)',
-          }}>CMS</div>
+        <div style={{ display: 'flex', alignItems: 'center', minWidth: 0, flex: 1 }}>
+          {logoUrl ? (
+            <img 
+              src={logoUrl} 
+              alt="CMS Logo" 
+              style={{ 
+                height: '32px', 
+                maxWidth: '100%',
+                backgroundColor: 'white', 
+                padding: '4px 8px', 
+                objectFit: 'contain', 
+                borderRadius: '8px', 
+                boxShadow: '0 4px 16px rgba(0,0,0,0.15)' 
+              }} 
+            />
+          ) : (
+            <div style={{ height: '32px', width: '32px', background: 'white', borderRadius: '8px' }} />
+          )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
             title={isDark ? 'Switch to Light' : 'Switch to Dark'}
             style={{
-              width: '46px',
-              height: '26px',
+              width: '42px',
+              height: '24px',
               borderRadius: '99px',
               background: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.2)',
               border: '1px solid rgba(255,255,255,0.3)',
@@ -113,45 +125,53 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               position: 'relative',
               transition: 'background 0.3s ease',
               flexShrink: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: 0,
             }}
           >
             <div style={{
               position: 'absolute',
-              top: '3px',
-              left: '3px',
-              width: '20px',
-              height: '20px',
+              top: '2px',
+              left: '2px',
+              width: '18px',
+              height: '18px',
               borderRadius: '50%',
               background: 'white',
               transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              transform: isDark ? 'translateX(20px)' : 'translateX(0)',
+              transform: isDark ? 'translateX(18px)' : 'translateX(0)',
               boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}>
               {isDark
-                ? <Moon size={11} color="#6366F1" strokeWidth={2.5} />
-                : <Sun size={11} color="#F97316" strokeWidth={2.5} />
+                ? <Moon size={10} color="#6366F1" strokeWidth={2.5} />
+                : <Sun size={10} color="#F97316" strokeWidth={2.5} />
               }
             </div>
           </button>
 
           {/* Mobile Close Button */}
           <button 
-            className="mobile-only"
+            className="mobile-only-flex"
             onClick={onClose}
+            title="Close Sidebar"
             style={{
+              width: '30px',
+              height: '30px',
               background: 'rgba(255,255,255,0.15)',
-              border: 'none',
+              border: '1px solid rgba(255,255,255,0.2)',
               borderRadius: '8px',
-              padding: '6px',
               color: 'white',
               cursor: 'pointer',
-              display: 'var(--sidebar-width) === "0px" ? "flex" : "none"' // Handled by media query usually, but adding for logic
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              padding: 0,
             }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
       </div>

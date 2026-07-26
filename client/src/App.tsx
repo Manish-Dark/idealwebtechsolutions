@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useLogo } from './hooks/useLogo';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeContextProvider } from './context/ThemeContext';
 import Sidebar from './components/Sidebar';
@@ -25,12 +26,13 @@ import ConveyancePage from './pages/ConveyancePage';
 import AdminConveyancePage from './pages/AdminConveyancePage';
 import SiteVisitsPage from './pages/SiteVisitsPage';
 import AdminSiteVisitsPage from './pages/AdminSiteVisitsPage';
+import AdminInvoicesPage from './pages/AdminInvoicesPage';
 import { Menu } from 'lucide-react';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string }> = ({ children, role }) => {
   const { user, loading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-
+  const logoUrl = useLogo();
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg)' }}>
       <div className="animate-spin" style={{ width: '40px', height: '40px', border: '4px solid var(--primary)', borderTopColor: 'transparent', borderRadius: '50%' }}></div>
@@ -59,28 +61,14 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string }> = (
 
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       
-      <div className="app-layout-content" style={{ flex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column', transition: 'all 0.3s ease' }}>
+      <div className="app-layout-content">
         {/* Mobile Header */}
-        <div style={{
-          height: 'var(--header-height)',
-          width: '100%',
-          background: 'var(--surface)',
-          borderBottom: '1px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 20px',
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          zIndex: 80,
-          boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-        }} className="mobile-only-flex">
+        <div className="mobile-header mobile-only-flex">
           <button 
             onClick={() => setIsSidebarOpen(true)}
             style={{
-              background: 'var(--primary-light)',
+              background: 'none',
               border: 'none',
-              borderRadius: '10px',
               width: '40px',
               height: '40px',
               display: 'flex',
@@ -90,21 +78,19 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string }> = (
               cursor: 'pointer',
             }}
           >
-            <Menu size={20} />
+            <Menu size={22} />
           </button>
-          <div style={{ marginLeft: '16px', fontWeight: 800, color: 'var(--primary)', fontSize: '18px' }}>CMS</div>
+          {logoUrl ? (
+            <img src={logoUrl} alt="CMS Logo" style={{ marginLeft: '12px', height: '28px', backgroundColor: 'white', padding: '2px 6px', borderRadius: '6px', objectFit: 'contain' }} />
+          ) : (
+            <div style={{ marginLeft: '12px', height: '28px', width: '60px', backgroundColor: 'white', borderRadius: '6px' }} />
+          )}
         </div>
 
-        <main className="main-layout" style={{ 
-          flex: 1, 
-          marginLeft: 'var(--sidebar-width)',
-          width: 'calc(100% - var(--sidebar-width))',
-          transition: 'all 0.3s ease',
-          padding: 'var(--page-padding)'
-        }}>
+        <main className="main-layout">
           {children}
         </main>
-        <div style={{ marginLeft: 'var(--sidebar-width)', transition: 'all 0.3s ease' }}>
+        <div className="footer-layout">
           <Footer />
         </div>
       </div>
@@ -183,6 +169,12 @@ function App() {
           <Route path="/admin/conveyance" element={
             <ProtectedRoute role="admin">
               <AdminConveyancePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/admin/invoices" element={
+            <ProtectedRoute role="admin">
+              <AdminInvoicesPage />
             </ProtectedRoute>
           } />
 
