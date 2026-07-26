@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Heart } from 'lucide-react';
+import { Mail, Heart, Globe } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -18,6 +18,18 @@ const Footer: React.FC = () => {
 
         {/* Right: Social Links */}
         <div className="footer-links">
+          {/* Website */}
+          <a
+            href="https://idealwebtech.unaux.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-link footer-link--site"
+            title="Ideal Webtech Website"
+          >
+            <Globe size={16} />
+            <span>Website</span>
+          </a>
+
           {/* LinkedIn */}
           <a
             href="https://www.linkedin.com/in/manish-sharma-426039297/"

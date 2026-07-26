@@ -79,13 +79,54 @@ const AttendancePage: React.FC = () => {
     return () => clearInterval(interval);
   }, [fetchAttendanceData]);
 
+  const [isLocating, setIsLocating] = useState(false);
+
+  const getGPSLocation = (): Promise<{ lat: number; lng: number }> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by your browser. Please use a modern browser.'));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          if (error.code === error.PERMISSION_DENIED) {
+            reject(new Error('Location permission denied! GPS location is required to mark attendance. Please allow location access in your browser settings.'));
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            reject(new Error('Location unavailable. Please make sure your device GPS is turned on and try again.'));
+          } else if (error.code === error.TIMEOUT) {
+            reject(new Error('Location request timed out. Please check your GPS connection and try again.'));
+          } else {
+            reject(new Error('Failed to acquire GPS location. Please enable location permissions to mark attendance.'));
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    });
+  };
+
   const handleAttendance = async (type: 'check-in' | 'check-out') => {
+    setIsLocating(true);
     try {
-      await api.post('/api/users/attendance', { type, location });
+      // Require GPS location before posting
+      const locationCoords = await getGPSLocation();
+
+      await api.post('/api/users/attendance', { type, location: locationCoords });
       alert(`${type === 'check-in' ? 'Clocked In' : 'Clocked Out'} Successfully!`);
       fetchAttendanceData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to update attendance');
+      alert(err.message || err.response?.data?.message || 'Failed to update attendance');
+    } finally {
+      setIsLocating(false);
     }
   };
 
@@ -197,15 +238,16 @@ const AttendancePage: React.FC = () => {
           {!todayAttendance ? (
             <button
               onClick={() => handleAttendance('check-in')}
-              style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(0, 102, 255, 0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.2s ease' }}
+              disabled={isLocating}
+              style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(0, 102, 255, 0.3)', border: 'none', cursor: isLocating ? 'wait' : 'pointer', transition: 'all 0.2s ease', opacity: isLocating ? 0.7 : 1 }}
             >
               <LogIn size={20} />
-              Check In
+              {isLocating ? 'Acquiring GPS...' : 'Check In'}
             </button>
           ) : !todayAttendance.checkOut ? (
             <button
               onClick={() => handleAttendance('check-out')}
-              disabled={!isSafetyPeriodOver}
+              disabled={!isSafetyPeriodOver || isLocating}
               style={{ 
                 backgroundColor: isSafetyPeriodOver ? '#ef4444' : '#94a3b8', 
                 color: 'white', 
@@ -217,13 +259,13 @@ const AttendancePage: React.FC = () => {
                 gap: '10px', 
                 boxShadow: isSafetyPeriodOver ? '0 4px 12px rgba(239, 68, 68, 0.3)' : 'none', 
                 border: 'none', 
-                cursor: isSafetyPeriodOver ? 'pointer' : 'not-allowed', 
+                cursor: (isSafetyPeriodOver && !isLocating) ? 'pointer' : 'not-allowed', 
                 transition: 'all 0.2s ease',
-                opacity: isSafetyPeriodOver ? 1 : 0.8
+                opacity: (isSafetyPeriodOver && !isLocating) ? 1 : 0.8
               }}
             >
               <LogOut size={20} />
-              {isSafetyPeriodOver ? 'Check Out' : `Wait ${countdownText}`}
+              {isLocating ? 'Acquiring GPS...' : isSafetyPeriodOver ? 'Check Out' : `Wait ${countdownText}`}
             </button>
           ) : (
             <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10B981', padding: '12px 24px', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>

@@ -15,6 +15,11 @@ import Mood from '../models/Mood.js';
 // @access  Private
 const markAttendance = async (req: any, res: Response) => {
   const { status, type, location, note } = req.body;
+
+  if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
+    return res.status(400).json({ message: 'GPS Location is mandatory to mark attendance. Please enable GPS and allow location access.' });
+  }
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -53,6 +58,7 @@ const markAttendance = async (req: any, res: Response) => {
 // @route   GET /api/user/attendance
 // @access  Private
 const getAttendanceHistory = async (req: any, res: Response) => {
+  if (!req.user) return res.status(401).json({ message: 'Not authorized' });
   const history = await Attendance.find({ user: req.user._id }).sort({ date: -1 });
   res.json(history);
 };
@@ -85,6 +91,7 @@ const applyLeave = async (req: any, res: Response) => {
 // @route   GET /api/user/leaves
 // @access  Private
 const getMyLeaves = async (req: any, res: Response) => {
+  if (!req.user) return res.status(401).json({ message: 'Not authorized' });
   const leaves = await Leave.find({ user: req.user._id }).sort({ createdAt: -1 });
   res.json(leaves);
 };
@@ -93,6 +100,7 @@ const getMyLeaves = async (req: any, res: Response) => {
 // @route   GET /api/user/tasks
 // @access  Private
 const getUserTasks = async (req: any, res: Response) => {
+  if (!req.user) return res.status(401).json({ message: 'Not authorized' });
   const tasks = await Task.find({ assignedTo: req.user._id });
   res.json(tasks);
 };

@@ -40,7 +40,7 @@ const registerUser = async (req: Request, res: Response) => {
     return;
   }
 
-  const finalPassword = password || 'Pitech@123';
+  const finalPassword = password || 'IWS@123';
 
   const user = await User.create({
     name,

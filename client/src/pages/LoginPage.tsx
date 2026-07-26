@@ -191,7 +191,7 @@ const LoginPage: React.FC = () => {
         <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '12px', color: 'var(--text-muted)' }}>
           Default password:&nbsp;
           <code style={{ background: 'var(--primary-light)', color: 'var(--primary)', padding: '2px 9px', borderRadius: '7px', fontWeight: 700 }}>
-            Pitech@123
+            IWS@123
           </code>
         </p>
       </div>

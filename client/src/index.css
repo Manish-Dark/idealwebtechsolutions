@@ -689,6 +689,12 @@ main>* {
   box-shadow: var(--shadow-md);
 }
 
+.footer-link--site:hover {
+  background: rgba(0, 102, 255, 0.08);
+  color: var(--primary);
+  border-color: rgba(0, 102, 255, 0.25);
+}
+
 .footer-link--linkedin:hover {
   background: #EFF8FF;
   color: #0077b5;

@@ -213,7 +213,7 @@ const AdminAttendancePage: React.FC = () => {
                     {calculateHours(record.checkIn, record.checkOut)}
                   </td>
                   <td style={{ padding: '16px 24px' }}>
-                    {record.location?.lat ? (
+                    {typeof record.location?.lat === 'number' && typeof record.location?.lng === 'number' ? (
                       <a
                         href={`https://www.google.com/maps?q=${record.location.lat},${record.location.lng}`}
                         target="_blank"
@@ -225,17 +225,18 @@ const AdminAttendancePage: React.FC = () => {
                           color: 'var(--primary)',
                           textDecoration: 'none',
                           fontSize: '13px',
-                          backgroundColor: 'rgba(0, 102, 255, 0.05)',
+                          backgroundColor: 'rgba(0, 102, 255, 0.08)',
                           padding: '6px 12px',
                           borderRadius: '8px',
-                          width: 'fit-content'
+                          width: 'fit-content',
+                          fontWeight: 600
                         }}
                       >
                         <MapPin size={14} />
-                        View Map
+                        View Map ({record.location.lat.toFixed(4)}, {record.location.lng.toFixed(4)})
                       </a>
                     ) : (
-                      <span style={{ color: 'var(--text-muted)', fontSize: '12px italic' }}>No GPS Data</span>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '12px', fontStyle: 'italic' }}>No GPS Data</span>
                     )}
                   </td>
                 </tr>
