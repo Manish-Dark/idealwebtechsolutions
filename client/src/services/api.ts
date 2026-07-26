@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const rawBaseUrl = import.meta.env.VITE_API_URL || 'https://idealwebtechsolutions.onrender.com';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://cms-odka.onrender.com',
+  baseURL: rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl,
 });
 
 // Add a request interceptor to automatically add the auth token if available

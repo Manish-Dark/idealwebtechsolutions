@@ -9,7 +9,6 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "postinstall": "npm run build",
-    "data:import": "tsx src/seeder.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
