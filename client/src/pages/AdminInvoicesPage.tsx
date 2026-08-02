@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import { useLogo } from '../hooks/useLogo';
+import { useSignature } from '../hooks/useSignature';
 import {
   Plus, X, Eye, Download, Trash2, Receipt,
   FileText, IndianRupee, Calendar, TrendingUp
@@ -93,6 +94,7 @@ const AdminInvoicesPage: React.FC = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const invoiceRef = useRef<HTMLDivElement>(null);
   const logoUrl = useLogo();
+  const signatureUrl = useSignature();
 
   useEffect(() => { fetchInvoices(); fetchCustomers(); }, []);
 
@@ -726,9 +728,19 @@ const AdminInvoicesPage: React.FC = () => {
                           <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 900, fontSize: '14px' }}>₹{Number(selectedInvoice.grandTotal).toFixed(2)}</td>
                         </tr>
                         <tr><td colSpan={2} style={{ padding: '4px 10px', textAlign: 'right', fontSize: '9px', borderBottom: '1px solid #ddd' }}>(E & O.E.)</td></tr>
-                        <tr><td colSpan={2} style={{ padding: '10px', textAlign: 'center', height: '100px', verticalAlign: 'bottom' }}>
-                          <div style={{ fontSize: '9px', marginBottom: '8px', color: '#555' }}>Certified that the particulars given above are true and correct.</div>
-                          <div style={{ fontWeight: 700, fontSize: '12px', marginBottom: '50px' }}>Authorised Signatory</div>
+                        <tr><td colSpan={2} style={{ padding: '10px', textAlign: 'center', minHeight: '120px', verticalAlign: 'bottom' }}>
+                          <div style={{ fontSize: '9px', marginBottom: '6px', color: '#555' }}>Certified that the particulars given above are true and correct.</div>
+                          <div style={{ fontWeight: 700, fontSize: '12px', marginBottom: signatureUrl ? '4px' : '20px' }}>Authorised Signatory</div>
+                          {signatureUrl && (
+                            <img
+                              src={signatureUrl}
+                              alt="Authorised Signature"
+                              style={{ maxHeight: '55px', maxWidth: '140px', objectFit: 'contain', margin: '4px auto 6px auto', display: 'block' }}
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          )}
                           <div style={{ borderTop: '1px solid black', width: '70%', margin: '0 auto', paddingTop: '4px', fontSize: '9px' }}>Authorised Signatory</div>
                         </td></tr>
                       </tbody>

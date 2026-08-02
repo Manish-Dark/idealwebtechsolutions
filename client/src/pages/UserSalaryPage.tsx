@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLogo } from '../hooks/useLogo';
+import { useSignature } from '../hooks/useSignature';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FileText, DollarSign, Eye, X, Activity, Briefcase, Download } from 'lucide-react';
@@ -9,6 +10,7 @@ import { jsPDF } from 'jspdf';
 const UserSalaryPage: React.FC = () => {
   const { user } = useAuth();
   const logoUrl = useLogo();
+  const signatureUrl = useSignature();
   const [salarySlips, setSalarySlips] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSlip, setSelectedSlip] = useState<any | null>(null);
@@ -440,6 +442,16 @@ const UserSalaryPage: React.FC = () => {
                     </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: isMobile ? 'flex-start' : 'flex-end' }}>
+                    {signatureUrl && (
+                      <img
+                        src={signatureUrl}
+                        alt="Signature"
+                        style={{ maxHeight: '50px', maxWidth: '160px', objectFit: 'contain', marginBottom: '8px', alignSelf: isMobile ? 'flex-start' : 'center' }}
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    )}
                     <div style={{ borderTop: '2.5px solid #111827', width: '220px', paddingTop: '12px', textAlign: 'center' }}>
                       <p style={{ fontSize: '12px', fontWeight: 900, color: '#111827', textTransform: 'uppercase' }}>Authorized Signatory</p>
                       <p style={{ fontSize: '10px', color: '#6b7280', marginTop: '6px' }}>Digitally Verified Record</p>
