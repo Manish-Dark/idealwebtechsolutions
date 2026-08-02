@@ -741,8 +741,7 @@ const AdminInvoicesPage: React.FC = () => {
                                 objectFit: 'contain',
                                 margin: '4px auto 6px auto',
                                 display: 'block',
-                                mixBlendMode: 'multiply',
-                                backgroundColor: 'transparent'
+                                backgroundColor: '#ffffff'
                               }}
                               onError={(e) => {
                                 (e.target as HTMLElement).style.display = 'none';

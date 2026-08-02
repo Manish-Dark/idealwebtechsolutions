@@ -452,8 +452,7 @@ const UserSalaryPage: React.FC = () => {
                           objectFit: 'contain',
                           marginBottom: '8px',
                           alignSelf: isMobile ? 'flex-start' : 'center',
-                          mixBlendMode: 'multiply',
-                          backgroundColor: 'transparent'
+                          backgroundColor: '#ffffff'
                         }}
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = 'none';
