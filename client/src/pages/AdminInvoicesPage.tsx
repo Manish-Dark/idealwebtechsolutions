@@ -245,19 +245,22 @@ const AdminInvoicesPage: React.FC = () => {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfPageHeight = pdf.internal.pageSize.getHeight();
 
-      let imgWidth = pdfWidth;
-      let imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      const margin = 5;
+      const maxW = pdfWidth - margin * 2;
+      const maxH = pdfPageHeight - margin * 2;
 
-      if (imgHeight > (pdfPageHeight - 4)) {
-        const ratio = (pdfPageHeight - 4) / imgHeight;
-        imgWidth = pdfWidth * ratio;
-        imgHeight = pdfPageHeight - 4;
-        const xOffset = (pdfWidth - imgWidth) / 2;
-        pdf.addImage(imgData, 'PNG', xOffset, 2, imgWidth, imgHeight);
-      } else {
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      let renderW = maxW;
+      let renderH = (canvas.height * maxW) / canvas.width;
+
+      if (renderH > maxH) {
+        renderH = maxH;
+        renderW = (canvas.width * maxH) / canvas.height;
       }
 
+      const xPos = (pdfWidth - renderW) / 2;
+      const yPos = margin;
+
+      pdf.addImage(imgData, 'PNG', xPos, yPos, renderW, renderH);
       pdf.save(`Invoice_${selectedInvoice.invoiceNo}.pdf`);
     } catch (err) {
       alert('Failed to generate PDF.');
@@ -565,7 +568,7 @@ const AdminInvoicesPage: React.FC = () => {
           {/* ── The actual printable invoice ── */}
           <div ref={invoiceRef} style={{
             fontFamily: 'Arial, sans-serif', backgroundColor: 'white', color: '#111',
-            width: '210mm', minHeight: '280mm', padding: '8mm 10mm', boxSizing: 'border-box', fontSize: '11px',
+            width: '210mm', height: 'auto', padding: '10mm', boxSizing: 'border-box', fontSize: '11px',
           }}>
             {/* Invoice Header with Logo & Title */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '2px solid #2a265f', paddingBottom: '8px' }}>

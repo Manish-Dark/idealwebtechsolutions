@@ -86,22 +86,25 @@ const UserSalaryPage: React.FC = () => {
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfPageHeight = pdf.internal.pageSize.getHeight();
 
-      let imgWidth = pdfWidth;
-      let imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const margin = 5;
+      const maxW = pdfWidth - margin * 2;
+      const maxH = pdfPageHeight - margin * 2;
 
-      if (imgHeight > pdfPageHeight) {
-        const ratio = pdfPageHeight / imgHeight;
-        imgWidth = pdfWidth * ratio;
-        imgHeight = pdfPageHeight;
-        const xOffset = (pdfWidth - imgWidth) / 2;
-        pdf.addImage(imgData, 'PNG', xOffset, 0, imgWidth, imgHeight);
-      } else {
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      let renderW = maxW;
+      let renderH = (canvas.height * maxW) / canvas.width;
+
+      if (renderH > maxH) {
+        renderH = maxH;
+        renderW = (canvas.width * maxH) / canvas.height;
       }
+
+      const xPos = (pdfWidth - renderW) / 2;
+      const yPos = margin;
+
+      pdf.addImage(imgData, 'PNG', xPos, yPos, renderW, renderH);
 
       pdf.save(`SalarySlip_${selectedSlip.month}_${selectedSlip.year}.pdf`);
       setIsGeneratingPDF(false);
