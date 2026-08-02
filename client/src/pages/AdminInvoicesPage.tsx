@@ -550,9 +550,9 @@ const AdminInvoicesPage: React.FC = () => {
 
       {/* ═══════════════════ VIEW / PRINT MODAL ═══════════════════ */}
       {selectedInvoice && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 10px', overflowY: 'auto' }}>
           {/* Actions toolbar */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', width: '100%', maxWidth: '820px', justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', width: '100%', maxWidth: '210mm', justifyContent: 'flex-end' }}>
             <button onClick={downloadPDF} disabled={isGeneratingPDF}
               style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--primary)', color: 'white', padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
               {isGeneratingPDF
@@ -565,11 +565,12 @@ const AdminInvoicesPage: React.FC = () => {
             </button>
           </div>
 
-          {/* ── The actual printable invoice ── */}
-          <div ref={invoiceRef} style={{
-            fontFamily: 'Arial, sans-serif', backgroundColor: 'white', color: '#111',
-            width: '210mm', height: 'auto', padding: '10mm', boxSizing: 'border-box', fontSize: '11px',
-          }}>
+          {/* ── Responsive Scroll Container for Mobile View ── */}
+          <div style={{ width: '100%', maxWidth: '210mm', overflowX: 'auto', display: 'flex', justifyContent: 'center', borderRadius: '4px' }}>
+            <div ref={invoiceRef} style={{
+              fontFamily: 'Arial, sans-serif', backgroundColor: 'white', color: '#111',
+              width: '210mm', minWidth: '210mm', height: 'auto', padding: '10mm', boxSizing: 'border-box', fontSize: '11px',
+            }}>
             {/* Invoice Header with Logo & Title */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '2px solid #2a265f', paddingBottom: '8px' }}>
               <div>
@@ -773,6 +774,7 @@ const AdminInvoicesPage: React.FC = () => {
               </tbody>
             </table>
 
+          </div>
           </div>
         </div>
       )}
