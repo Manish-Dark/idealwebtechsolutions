@@ -92,6 +92,7 @@ app.get('/api/signature', async (req, res) => {
     const buffer = await fetchResponse.arrayBuffer();
     const contentType = fetchResponse.headers.get('content-type') || 'image/jpeg';
     res.set('Content-Type', contentType);
+    res.set('Content-Disposition', 'inline');
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.send(Buffer.from(buffer));
   } catch (error) {
