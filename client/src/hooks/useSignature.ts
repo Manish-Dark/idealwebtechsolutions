@@ -8,7 +8,7 @@ export const useSignature = () => {
   useEffect(() => {
     if (cachedSignatureUrl) return;
 
-    let backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    let backendUrl = import.meta.env.VITE_API_URL || 'https://idealwebtechsolutions.onrender.com';
     if (backendUrl.endsWith('/')) {
       backendUrl = backendUrl.slice(0, -1);
     }
