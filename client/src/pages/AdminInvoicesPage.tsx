@@ -243,8 +243,21 @@ const AdminInvoicesPage: React.FC = () => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      const pdfPageHeight = pdf.internal.pageSize.getHeight();
+
+      let imgWidth = pdfWidth;
+      let imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      if (imgHeight > pdfPageHeight) {
+        const ratio = pdfPageHeight / imgHeight;
+        imgWidth = pdfWidth * ratio;
+        imgHeight = pdfPageHeight;
+        const xOffset = (pdfWidth - imgWidth) / 2;
+        pdf.addImage(imgData, 'PNG', xOffset, 0, imgWidth, imgHeight);
+      } else {
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      }
+
       pdf.save(`Invoice_${selectedInvoice.invoiceNo}.pdf`);
     } catch (err) {
       alert('Failed to generate PDF.');
@@ -552,7 +565,7 @@ const AdminInvoicesPage: React.FC = () => {
           {/* ── The actual printable invoice ── */}
           <div ref={invoiceRef} style={{
             fontFamily: 'Arial, sans-serif', backgroundColor: 'white', color: '#111',
-            width: '210mm', minHeight: '297mm', padding: '12mm', boxSizing: 'border-box', fontSize: '11px',
+            width: '210mm', minHeight: '280mm', padding: '8mm 10mm', boxSizing: 'border-box', fontSize: '11px',
           }}>
             {/* Invoice Header with Logo & Title */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '2px solid #2a265f', paddingBottom: '8px' }}>

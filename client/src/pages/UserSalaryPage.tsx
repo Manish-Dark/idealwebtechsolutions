@@ -86,12 +86,23 @@ const UserSalaryPage: React.FC = () => {
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-
       const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const pdfPageHeight = pdf.internal.pageSize.getHeight();
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      let imgWidth = pdfWidth;
+      let imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      if (imgHeight > pdfPageHeight) {
+        const ratio = pdfPageHeight / imgHeight;
+        imgWidth = pdfWidth * ratio;
+        imgHeight = pdfPageHeight;
+        const xOffset = (pdfWidth - imgWidth) / 2;
+        pdf.addImage(imgData, 'PNG', xOffset, 0, imgWidth, imgHeight);
+      } else {
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      }
+
       pdf.save(`SalarySlip_${selectedSlip.month}_${selectedSlip.year}.pdf`);
       setIsGeneratingPDF(false);
     } catch (err) {
