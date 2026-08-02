@@ -62,7 +62,7 @@ app.get('/api/signature', async (req, res) => {
       return res.status(500).send('BLOB_READ_WRITE_TOKEN environment variable is missing');
     }
 
-    let targetUrl = 'https://crtakdehv59wca9m.private.blob.vercel-storage.com/signature%20%282%29.jpeg';
+    let targetUrl = 'https://crtakdehv59wca9m.private.blob.vercel-storage.com/signature%20%282%29.png';
 
     let fetchResponse = await fetch(targetUrl, {
       headers: { Authorization: `Bearer ${token}` }
@@ -90,7 +90,7 @@ app.get('/api/signature', async (req, res) => {
     }
 
     const buffer = await fetchResponse.arrayBuffer();
-    const contentType = fetchResponse.headers.get('content-type') || 'image/jpeg';
+    const contentType = fetchResponse.headers.get('content-type') || 'image/png';
     res.set('Content-Type', contentType);
     res.set('Cache-Control', 'public, max-age=86400');
     res.send(Buffer.from(buffer));
