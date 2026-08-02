@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 
-let cachedLogoUrl: string | null = null;
+let cachedLogoUrl: string | undefined = undefined;
 
 export const useLogo = () => {
-  const [logoUrl, setLogoUrl] = useState<string | null>(cachedLogoUrl);
+  const [logoUrl, setLogoUrl] = useState<string | undefined>(cachedLogoUrl);
 
   useEffect(() => {
     if (cachedLogoUrl) return;

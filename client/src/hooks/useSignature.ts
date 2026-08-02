@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 
-let cachedSignatureUrl: string | null = null;
+let cachedSignatureUrl: string | undefined = undefined;
 
 export const useSignature = () => {
-  const [signatureUrl, setSignatureUrl] = useState<string | null>(cachedSignatureUrl);
+  const [signatureUrl, setSignatureUrl] = useState<string | undefined>(cachedSignatureUrl);
 
   useEffect(() => {
     if (cachedSignatureUrl) return;
