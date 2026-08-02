@@ -99,7 +99,7 @@ const LoginPage: React.FC = () => {
                 autoComplete="username"
                 value={loginId}
                 onChange={e => setLoginId(e.target.value)}
-                placeholder="ADM001 or PI001"
+                placeholder="IWS001 or US001"
                 required
                 style={{ 
                   width: '100%', 
