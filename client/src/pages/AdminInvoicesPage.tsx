@@ -248,12 +248,12 @@ const AdminInvoicesPage: React.FC = () => {
       let imgWidth = pdfWidth;
       let imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      if (imgHeight > pdfPageHeight) {
-        const ratio = pdfPageHeight / imgHeight;
+      if (imgHeight > (pdfPageHeight - 4)) {
+        const ratio = (pdfPageHeight - 4) / imgHeight;
         imgWidth = pdfWidth * ratio;
-        imgHeight = pdfPageHeight;
+        imgHeight = pdfPageHeight - 4;
         const xOffset = (pdfWidth - imgWidth) / 2;
-        pdf.addImage(imgData, 'PNG', xOffset, 0, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'PNG', xOffset, 2, imgWidth, imgHeight);
       } else {
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       }
@@ -684,7 +684,7 @@ const AdminInvoicesPage: React.FC = () => {
                     <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right', fontWeight: 700 }}>{Number(item.total).toFixed(2)}</td>
                   </tr>
                 ))}
-                <tr style={{ height: '120px' }}><td colSpan={8} style={{ border: '1px solid #ccc' }}></td></tr>
+                <tr style={{ height: '35px' }}><td colSpan={8} style={{ border: '1px solid #ccc' }}></td></tr>
                 <tr style={{ background: '#f5f5f5', fontWeight: 700 }}>
                   <td colSpan={2} style={{ border: '1px solid black', padding: '5px', textAlign: 'center' }}>Total</td>
                   <td style={{ border: '1px solid black', padding: '5px', textAlign: 'center' }}>{selectedInvoice.totalQty} NOS</td>
