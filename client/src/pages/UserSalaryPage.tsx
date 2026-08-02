@@ -446,7 +446,15 @@ const UserSalaryPage: React.FC = () => {
                       <img
                         src={signatureUrl}
                         alt="Signature"
-                        style={{ maxHeight: '50px', maxWidth: '160px', objectFit: 'contain', marginBottom: '8px', alignSelf: isMobile ? 'flex-start' : 'center' }}
+                        style={{
+                          maxHeight: '65px',
+                          maxWidth: '160px',
+                          objectFit: 'contain',
+                          marginBottom: '8px',
+                          alignSelf: isMobile ? 'flex-start' : 'center',
+                          mixBlendMode: 'multiply',
+                          backgroundColor: 'transparent'
+                        }}
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = 'none';
                         }}

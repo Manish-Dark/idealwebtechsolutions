@@ -735,7 +735,15 @@ const AdminInvoicesPage: React.FC = () => {
                             <img
                               src={signatureUrl}
                               alt="Authorised Signature"
-                              style={{ maxHeight: '55px', maxWidth: '140px', objectFit: 'contain', margin: '4px auto 6px auto', display: 'block' }}
+                              style={{
+                                maxHeight: '70px',
+                                maxWidth: '160px',
+                                objectFit: 'contain',
+                                margin: '4px auto 6px auto',
+                                display: 'block',
+                                mixBlendMode: 'multiply',
+                                backgroundColor: 'transparent'
+                              }}
                               onError={(e) => {
                                 (e.target as HTMLElement).style.display = 'none';
                               }}
