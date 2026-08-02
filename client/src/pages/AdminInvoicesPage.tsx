@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import api from '../services/api';
 import { useLogo } from '../hooks/useLogo';
 import { useSignature } from '../hooks/useSignature';
@@ -240,17 +241,21 @@ const AdminInvoicesPage: React.FC = () => {
         onclone: (clonedDoc) => {
           const clonedEl = clonedDoc.querySelector('[data-invoice-container="true"]') as HTMLElement;
           if (clonedEl) {
+            // Keep compact (auto height) — no space-between forced
             clonedEl.style.width = '210mm';
             clonedEl.style.minWidth = '210mm';
-            clonedEl.style.height = '297mm';
-            clonedEl.style.minHeight = '297mm';
+            clonedEl.style.height = 'auto';
+            clonedEl.style.gap = '6px';
             clonedEl.style.margin = '0 auto';
           }
         }
       });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      const pdfWidth = 210;
+      // Scale canvas to exactly fit A4 width; height is proportional (no forced stretch)
+      const imgHeightMm = (canvas.height / canvas.width) * pdfWidth;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeightMm);
       pdf.save(`Invoice_${selectedInvoice.invoiceNo}.pdf`);
     } catch (err) {
       alert('Failed to generate PDF.');
@@ -271,6 +276,216 @@ const AdminInvoicesPage: React.FC = () => {
     <div style={{ padding: '60px', textAlign: 'center' }}>
       <Receipt size={32} color="var(--primary)" style={{ marginBottom: '12px' }} />
       <p style={{ color: 'var(--text-muted)' }}>Loading invoices...</p>
+    </div>
+  );
+
+  // ═══════════════ FULL-PAGE INVOICE VIEWER ═══════════════
+  if (selectedInvoice) return (
+    <div style={{ minHeight: '100vh', background: '#f0f2f5', display: 'flex', flexDirection: 'column' }}>
+
+      {/* Sticky top bar */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        display: 'flex', alignItems: 'center', gap: '12px',
+        padding: '12px 24px',
+        background: 'var(--surface)',
+        borderBottom: '1px solid var(--border)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+      }}>
+        <button
+          onClick={() => setSelectedInvoice(null)}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-main)', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+          ← Back to Invoices
+        </button>
+        <span style={{ flex: 1, fontWeight: 700, fontSize: '16px', color: 'var(--text-main)' }}>
+          Invoice #{selectedInvoice.invoiceNo}
+        </span>
+        <button onClick={downloadPDF} disabled={isGeneratingPDF}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--primary)', color: 'white', padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+          {isGeneratingPDF
+            ? <span style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            : <Download size={18} />}
+          {isGeneratingPDF ? 'Generating…' : 'Download PDF'}
+        </button>
+      </div>
+
+      {/* Scrollable invoice content */}
+      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'auto', padding: '32px 24px 60px', display: 'flex', justifyContent: 'center' }}>
+        <div
+          ref={invoiceRef}
+          data-invoice-container="true"
+          style={{
+            fontFamily: 'Arial, sans-serif', backgroundColor: '#ffffff', color: '#111111',
+            width: '210mm', minWidth: '210mm', height: 'auto',
+            padding: '10mm', boxSizing: 'border-box', fontSize: '11px',
+            display: 'flex', flexDirection: 'column', gap: '6px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+          }}
+        >
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', borderBottom: '2px solid #2a265f', paddingBottom: '6px' }}>
+            <div>
+              <h1 style={{ fontSize: '22px', fontWeight: 900, color: '#2a265f', margin: 0 }}>TAX INVOICE</h1>
+              <span style={{ fontSize: '10px', fontWeight: 600, color: '#666', textTransform: 'uppercase' }}>ORIGINAL FOR RECIPIENT</span>
+            </div>
+            {logoUrl && <img src={logoUrl} alt="Logo" style={{ height: '52px', objectFit: 'contain' }} />}
+          </div>
+
+          {/* Invoice Meta */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '6px', border: '1px solid black', fontSize: '10px' }}>
+            <tbody>
+              <tr style={{ background: '#f5f5f5', borderBottom: '1px solid black' }}>
+                <td style={{ padding: '4px 8px', fontWeight: 700, width: '13%' }}>Invoice No.:</td>
+                <td style={{ padding: '4px 8px', fontWeight: 600, width: '20%' }}>{selectedInvoice.invoiceNo}</td>
+                <td style={{ padding: '4px 8px', fontWeight: 700, width: '13%' }}>Invoice Date:</td>
+                <td style={{ padding: '4px 8px', width: '20%' }}>{new Date(selectedInvoice.invoiceDate).toLocaleDateString('en-IN')}</td>
+                <td style={{ padding: '4px 8px', fontWeight: 700, width: '14%' }}>E-Way Bill:</td>
+                <td style={{ padding: '4px 8px', width: '20%' }}>{selectedInvoice.eWayBillNo || '-'}</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '4px 8px', fontWeight: 700 }}>Challan No:</td>
+                <td style={{ padding: '4px 8px' }}>{selectedInvoice.challanNo || '-'}</td>
+                <td style={{ padding: '4px 8px', fontWeight: 700 }}>Challan Date:</td>
+                <td style={{ padding: '4px 8px' }}>{selectedInvoice.challanDate ? new Date(selectedInvoice.challanDate).toLocaleDateString('en-IN') : '-'}</td>
+                <td style={{ padding: '4px 8px', fontWeight: 700 }}>Transport / ID:</td>
+                <td style={{ padding: '4px 8px' }}>{selectedInvoice.transport || '-'} {selectedInvoice.transportId && selectedInvoice.transportId !== '-' ? `(${selectedInvoice.transportId})` : ''}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Addresses */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '6px', border: '1px solid black' }}>
+            <tbody>
+              <tr>
+                <td style={{ width: '50%', verticalAlign: 'top', padding: 0, borderRight: '1px solid black' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <tbody>
+                      <tr><td colSpan={2} style={{ padding: '4px 8px', textAlign: 'center', fontWeight: 700, background: '#e8e8e8', borderBottom: '1px solid black' }}>Shipping Address / Supplier Details</td></tr>
+                      <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, width: '100px', whiteSpace: 'nowrap' }}>GSTIN</td><td style={{ padding: '3px 8px' }}>26CORPP3939N1</td></tr>
+                      <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Address</td><td style={{ padding: '3px 8px' }}>Capital High St, Phool Bagh, RIICO Industrial Area, Bhiwadi, 301019</td></tr>
+                      <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Phone</td><td style={{ padding: '3px 8px' }}>+91-8199055470</td></tr>
+                      <tr><td style={{ padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Description</td><td style={{ padding: '3px 8px', fontSize: '10px', color: '#444' }}>Manufacturing &amp; Supply of Precision software</td></tr>
+                    </tbody>
+                  </table>
+                </td>
+                <td style={{ width: '50%', verticalAlign: 'top', padding: 0 }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <tbody>
+                      <tr><td colSpan={2} style={{ padding: '4px 8px', textAlign: 'center', fontWeight: 700, background: '#e8e8e8', borderBottom: '1px solid black' }}>Customer Detail / Delivery Address</td></tr>
+                      {[['Name', selectedInvoice.customerName], ['Address', selectedInvoice.customerAddress], ['Phone', formatPhone(selectedInvoice.customerPhone)], ['GSTIN', selectedInvoice.customerGSTIN], ['Place of Supply', selectedInvoice.placeOfSupply]].map(([k, v]) => (
+                        <tr key={k} style={{ borderBottom: '1px solid #ddd' }}>
+                          <td style={{ padding: '3px 8px', fontWeight: 700, width: '100px', whiteSpace: 'nowrap' }}>{k}</td>
+                          <td style={{ padding: '3px 8px' }}>{v}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Items Table */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid black' }}>
+            <thead>
+              <tr style={{ background: '#f5f5f5' }}>
+                <th style={{ border: '1px solid black', padding: '5px 4px', width: '5%', textAlign: 'center', fontSize: '10px', fontWeight: 700 }}>Sr.</th>
+                <th style={{ border: '1px solid black', padding: '5px 8px', textAlign: 'left', fontSize: '10px', fontWeight: 700 }}>Name of Product / Service</th>
+                <th style={{ border: '1px solid black', padding: '5px 4px', textAlign: 'center', width: '8%', fontSize: '10px', fontWeight: 700 }}>Qty</th>
+                <th style={{ border: '1px solid black', padding: '5px 8px', textAlign: 'right', width: '12%', fontSize: '10px', fontWeight: 700 }}>Rate</th>
+                <th style={{ border: '1px solid black', padding: '5px 8px', textAlign: 'right', width: '14%', fontSize: '10px', fontWeight: 700 }}>Taxable Value</th>
+                <th style={{ border: '1px solid black', padding: '5px 4px', textAlign: 'center', width: '8%', fontSize: '10px', fontWeight: 700 }}>IGST %</th>
+                <th style={{ border: '1px solid black', padding: '5px 8px', textAlign: 'right', width: '12%', fontSize: '10px', fontWeight: 700 }}>IGST Amount</th>
+                <th style={{ border: '1px solid black', padding: '5px 8px', textAlign: 'right', width: '14%', fontSize: '10px', fontWeight: 700 }}>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedInvoice.items.map((item: any, idx: number) => (
+                <tr key={idx}>
+                  <td style={{ border: '1px solid #ccc', padding: '4px', textAlign: 'center' }}>{idx + 1}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '4px 8px', fontWeight: 600 }}>{item.name}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '4px', textAlign: 'center' }}>{item.qty} NOS</td>
+                  <td style={{ border: '1px solid #ccc', padding: '4px 8px', textAlign: 'right' }}>{Number(item.rate).toFixed(2)}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '4px 8px', textAlign: 'right' }}>{Number(item.taxableValue).toFixed(2)}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '4px', textAlign: 'center' }}>{item.igstPercent}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '4px 8px', textAlign: 'right' }}>{Number(item.igstAmount).toFixed(2)}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '4px 8px', textAlign: 'right', fontWeight: 700 }}>{Number(item.total).toFixed(2)}</td>
+                </tr>
+              ))}
+              <tr style={{ height: '22px' }}><td colSpan={8} style={{ border: 'none' }}></td></tr>
+              <tr style={{ height: '22px' }}><td colSpan={8} style={{ border: 'none' }}></td></tr>
+              <tr style={{ height: '22px' }}><td colSpan={8} style={{ border: 'none' }}></td></tr>
+              <tr style={{ height: '22px' }}><td colSpan={8} style={{ border: 'none' }}></td></tr>
+              <tr style={{ height: '22px' }}><td colSpan={8} style={{ border: 'none' }}></td></tr>
+              <tr style={{ height: '22px' }}><td colSpan={8} style={{ border: 'none' }}></td></tr>
+              <tr style={{ height: '22px' }}><td colSpan={8} style={{ border: 'none' }}></td></tr>
+              <tr style={{ background: '#f5f5f5', fontWeight: 700 }}>
+                <td colSpan={2} style={{ border: '1px solid black', padding: '4px 8px', textAlign: 'center' }}>Total</td>
+                <td style={{ border: '1px solid black', padding: '4px', textAlign: 'center' }}>{selectedInvoice.totalQty} NOS</td>
+                <td style={{ border: '1px solid black', padding: '4px 8px' }}></td>
+                <td style={{ border: '1px solid black', padding: '4px 8px', textAlign: 'right' }}>{Number(selectedInvoice.totalTaxableValue).toFixed(2)}</td>
+                <td style={{ border: '1px solid black', padding: '4px' }}></td>
+                <td style={{ border: '1px solid black', padding: '4px 8px', textAlign: 'right' }}>{Number(selectedInvoice.totalIgst).toFixed(2)}</td>
+                <td style={{ border: '1px solid black', padding: '4px 8px', textAlign: 'right' }}>{Number(selectedInvoice.grandTotal).toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Footer */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid black' }}>
+            <tbody>
+              <tr>
+                <td style={{ width: '55%', verticalAlign: 'top', padding: 0, borderRight: '1px solid black' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <tbody>
+                      <tr><td style={{ padding: '4px 8px', textAlign: 'center', background: '#e8e8e8', fontWeight: 700, borderBottom: '1px solid black' }}>Total in Words</td></tr>
+                      <tr><td style={{ padding: '6px 8px', textAlign: 'center', borderBottom: '1px solid black', fontStyle: 'italic' }}>{selectedInvoice.totalInWords}</td></tr>
+                      <tr><td style={{ padding: '4px 8px', textAlign: 'center', background: '#e8e8e8', fontWeight: 700, borderBottom: '1px solid black' }}>Bank Details</td></tr>
+                      <tr><td style={{ padding: '8px', textAlign: 'center' }}>
+                        <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`upi://pay?pa=joyajay83@ptyes&pn=Supplier&am=${selectedInvoice.grandTotal || 0}&cu=INR`)}`} alt="UPI QR Code" crossOrigin="anonymous" style={{ width: '70px', height: '70px', border: '1px solid #ccc', borderRadius: '4px', padding: '3px', background: '#fff', marginBottom: '4px' }} />
+                          <span style={{ fontWeight: 700, fontSize: '10px', color: '#222' }}>UPI ID: joyajay83@ptyes</span>
+                          <span style={{ fontSize: '8px', color: '#666', marginTop: '2px' }}>Pay using GPay / PhonePe / Paytm</span>
+                        </div>
+                      </td></tr>
+                      <tr><td style={{ borderTop: '1px solid black', padding: '5px 8px', fontSize: '9px' }}>
+                        <strong>Terms and Conditions</strong><br />
+                        Subject to Rajasthan Jurisdiction. Our Responsibility Ceases as soon as goods leaves our Premises.<br />
+                        Goods once sold will not taken back. Delivery Ex-Premises.
+                      </td></tr>
+                    </tbody>
+                  </table>
+                </td>
+                <td style={{ width: '45%', verticalAlign: 'top', padding: 0 }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', height: '100%' }}>
+                    <tbody>
+                      {[['Taxable Amount', Number(selectedInvoice.totalTaxableValue).toFixed(2)], ['Add : IGST', Number(selectedInvoice.totalIgst).toFixed(2)], ['Total Tax', Number(selectedInvoice.totalIgst).toFixed(2)]].map(([k, v]) => (
+                        <tr key={k} style={{ borderBottom: '1px solid #ddd' }}>
+                          <td style={{ padding: '4px 10px' }}>{k}</td>
+                          <td style={{ padding: '4px 10px', textAlign: 'right' }}>{v}</td>
+                        </tr>
+                      ))}
+                      <tr style={{ borderBottom: '1px solid black', background: '#f5f5f5' }}>
+                        <td style={{ padding: '5px 10px', fontWeight: 700 }}>Total Amount After Tax</td>
+                        <td style={{ padding: '5px 10px', textAlign: 'right', fontWeight: 900, fontSize: '13px' }}>₹{Number(selectedInvoice.grandTotal).toFixed(2)}</td>
+                      </tr>
+                      <tr><td colSpan={2} style={{ padding: '3px 10px', textAlign: 'right', fontSize: '9px', borderBottom: '1px solid #ddd' }}>(E &amp; O.E.)</td></tr>
+                      <tr><td colSpan={2} style={{ padding: '8px', textAlign: 'center', verticalAlign: 'bottom' }}>
+                        <div style={{ fontSize: '8px', marginBottom: '4px', color: '#555' }}>Certified that the particulars given above are true and correct.</div>
+                        {signatureUrl && (
+                          <img src={signatureUrl} alt="Authorised Signature" style={{ maxHeight: '65px', maxWidth: '150px', objectFit: 'contain', margin: '4px auto', display: 'block', backgroundColor: '#ffffff' }} onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                        )}
+                        <div style={{ borderTop: '1px solid black', width: '70%', margin: '4px auto 0 auto', paddingTop: '3px', fontSize: '9px', fontWeight: 700 }}>Authorised Signatory</div>
+                      </td></tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
     </div>
   );
 
@@ -396,22 +611,22 @@ const AdminInvoicesPage: React.FC = () => {
               <p style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--primary)', letterSpacing: '0.07em', marginBottom: '14px' }}>Invoice Details</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px', marginBottom: '28px' }}>
                 <InputField label="Invoice No" required>
-                  <input type="text" required value={formData.invoiceNo} onChange={e => setFormData(f => ({...f, invoiceNo: e.target.value}))} style={inputStyle} placeholder="e.g. INV-001" />
+                  <input type="text" required value={formData.invoiceNo} onChange={e => setFormData(f => ({ ...f, invoiceNo: e.target.value }))} style={inputStyle} placeholder="e.g. INV-001" />
                 </InputField>
                 <InputField label="Invoice Date" required>
-                  <input type="date" required value={formData.invoiceDate} onChange={e => setFormData(f => ({...f, invoiceDate: e.target.value}))} style={inputStyle} />
+                  <input type="date" required value={formData.invoiceDate} onChange={e => setFormData(f => ({ ...f, invoiceDate: e.target.value }))} style={inputStyle} />
                 </InputField>
                 <InputField label="Challan No">
-                  <input type="text" value={formData.challanNo} onChange={e => setFormData(f => ({...f, challanNo: e.target.value}))} style={inputStyle} />
+                  <input type="text" value={formData.challanNo} onChange={e => setFormData(f => ({ ...f, challanNo: e.target.value }))} style={inputStyle} />
                 </InputField>
                 <InputField label="Challan Date">
-                  <input type="date" value={formData.challanDate} onChange={e => setFormData(f => ({...f, challanDate: e.target.value}))} style={inputStyle} />
+                  <input type="date" value={formData.challanDate} onChange={e => setFormData(f => ({ ...f, challanDate: e.target.value }))} style={inputStyle} />
                 </InputField>
                 <InputField label="E-Way Bill No">
-                  <input type="text" value={formData.eWayBillNo} onChange={e => setFormData(f => ({...f, eWayBillNo: e.target.value}))} style={inputStyle} />
+                  <input type="text" value={formData.eWayBillNo} onChange={e => setFormData(f => ({ ...f, eWayBillNo: e.target.value }))} style={inputStyle} />
                 </InputField>
                 <InputField label="Transport">
-                  <input type="text" value={formData.transport} onChange={e => setFormData(f => ({...f, transport: e.target.value}))} style={inputStyle} />
+                  <input type="text" value={formData.transport} onChange={e => setFormData(f => ({ ...f, transport: e.target.value }))} style={inputStyle} />
                 </InputField>
               </div>
 
@@ -419,7 +634,7 @@ const AdminInvoicesPage: React.FC = () => {
 
               <div style={{ marginBottom: '16px', padding: '16px', borderRadius: '10px', border: '2px solid var(--primary)', background: 'rgba(99,102,241,0.04)', display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
                 <div style={{ flexShrink: 0, width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(99,102,241,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                 </div>
                 <div style={{ flex: 1, minWidth: '200px' }}>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Select from Customer Directory</label>
@@ -439,23 +654,23 @@ const AdminInvoicesPage: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px', marginBottom: '28px' }}>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <InputField label="Customer Name" required>
-                    <input type="text" required value={formData.customerName} onChange={e => setFormData(f => ({...f, customerName: e.target.value}))} style={inputStyle} placeholder="e.g. Shiv Engineering" />
+                    <input type="text" required value={formData.customerName} onChange={e => setFormData(f => ({ ...f, customerName: e.target.value }))} style={inputStyle} placeholder="e.g. Shiv Engineering" />
                   </InputField>
                 </div>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <InputField label="Address" required>
-                    <input type="text" required value={formData.customerAddress} onChange={e => setFormData(f => ({...f, customerAddress: e.target.value}))} style={inputStyle} placeholder="Full billing address" />
+                    <input type="text" required value={formData.customerAddress} onChange={e => setFormData(f => ({ ...f, customerAddress: e.target.value }))} style={inputStyle} placeholder="Full billing address" />
                   </InputField>
                 </div>
                 <InputField label="Phone" required>
-                  <input type="text" required value={formData.customerPhone} onChange={e => setFormData(f => ({...f, customerPhone: e.target.value}))} style={inputStyle} />
+                  <input type="text" required value={formData.customerPhone} onChange={e => setFormData(f => ({ ...f, customerPhone: e.target.value }))} style={inputStyle} />
                 </InputField>
                 <InputField label="GSTIN">
-                  <input type="text" value={formData.customerGSTIN} onChange={e => setFormData(f => ({...f, customerGSTIN: e.target.value}))} style={inputStyle} />
+                  <input type="text" value={formData.customerGSTIN} onChange={e => setFormData(f => ({ ...f, customerGSTIN: e.target.value }))} style={inputStyle} />
                 </InputField>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <InputField label="Place of Supply" required>
-                    <input type="text" required value={formData.placeOfSupply} onChange={e => setFormData(f => ({...f, placeOfSupply: e.target.value}))} style={inputStyle} placeholder="e.g. Maharashtra (27)" />
+                    <input type="text" required value={formData.placeOfSupply} onChange={e => setFormData(f => ({ ...f, placeOfSupply: e.target.value }))} style={inputStyle} placeholder="e.g. Maharashtra (27)" />
                   </InputField>
                 </div>
               </div>
@@ -522,7 +737,7 @@ const AdminInvoicesPage: React.FC = () => {
               </div>
 
               <InputField label="Total Amount in Words" required>
-                <input type="text" required value={formData.totalInWords} onChange={e => setFormData(f => ({...f, totalInWords: e.target.value}))} style={inputStyle} placeholder="e.g. FOUR THOUSAND FOUR HUNDRED RUPEES ONLY" />
+                <input type="text" required value={formData.totalInWords} onChange={e => setFormData(f => ({ ...f, totalInWords: e.target.value }))} style={inputStyle} placeholder="e.g. FOUR THOUSAND FOUR HUNDRED RUPEES ONLY" />
               </InputField>
 
               <div style={{ marginTop: '28px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
@@ -538,11 +753,22 @@ const AdminInvoicesPage: React.FC = () => {
         </div>
       )}
 
-      {/* ═══════════════════ VIEW / PRINT MODAL ═══════════════════ */}
-      {selectedInvoice && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 10px', overflowY: 'auto' }}>
-          {/* Actions toolbar */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', width: '100%', maxWidth: '210mm', justifyContent: 'flex-end' }}>
+      {/* (invoice view is handled by early return above) */}
+      {false && ReactDOM.createPortal(
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 99999,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          display: 'flex', flexDirection: 'column',
+        }}>
+          {/* ── Sticky top toolbar (always visible) ── */}
+          <div style={{
+            flexShrink: 0,
+            display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center',
+            padding: '14px 20px',
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(6px)',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+          }}>
             <button onClick={downloadPDF} disabled={isGeneratingPDF}
               style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--primary)', color: 'white', padding: '10px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
               {isGeneratingPDF
@@ -555,8 +781,15 @@ const AdminInvoicesPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Scroll wrapper */}
-          <div style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center' }}>
+          {/* ── Scrollable invoice body ── */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'auto',
+            display: 'flex',
+            justifyContent: 'center',
+            padding: '24px 20px 40px',
+          }}>
 
             {/* A4 Invoice Container: 210mm × 297mm */}
             <div
@@ -564,9 +797,9 @@ const AdminInvoicesPage: React.FC = () => {
               data-invoice-container="true"
               style={{
                 fontFamily: 'Arial, sans-serif', backgroundColor: '#ffffff', color: '#111111',
-                width: '210mm', minWidth: '210mm', height: '297mm',
+                width: '210mm', minWidth: '210mm', height: 'auto',
                 padding: '10mm', boxSizing: 'border-box', fontSize: '11px',
-                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                display: 'flex', flexDirection: 'column', gap: '6px',
               }}
             >
               {/* ── TOP: header + meta + addresses + items ── */}
@@ -741,7 +974,7 @@ const AdminInvoicesPage: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+        , document.body)}
     </div>
   );
 };
