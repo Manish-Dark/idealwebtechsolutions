@@ -12,7 +12,7 @@ export const useSignature = () => {
     if (backendUrl.endsWith('/')) {
       backendUrl = backendUrl.slice(0, -1);
     }
-    const signatureEndpoint = `${backendUrl}/api/signature`;
+    const signatureEndpoint = `${backendUrl}/api/signature?v=${Date.now()}`;
 
     cachedSignatureUrl = signatureEndpoint;
     setSignatureUrl(signatureEndpoint);

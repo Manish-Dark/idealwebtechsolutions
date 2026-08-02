@@ -92,7 +92,7 @@ app.get('/api/signature', async (req, res) => {
     const buffer = await fetchResponse.arrayBuffer();
     const contentType = fetchResponse.headers.get('content-type') || 'image/jpeg';
     res.set('Content-Type', contentType);
-    res.set('Cache-Control', 'public, max-age=86400');
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.send(Buffer.from(buffer));
   } catch (error) {
     console.error('Error fetching signature from Vercel Blob:', error);
