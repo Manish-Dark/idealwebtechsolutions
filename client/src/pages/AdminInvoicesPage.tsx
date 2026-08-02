@@ -236,31 +236,21 @@ const AdminInvoicesPage: React.FC = () => {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-        scrollY: -window.scrollY
+        windowWidth: 1200,
+        onclone: (clonedDoc) => {
+          const clonedEl = clonedDoc.querySelector('[data-invoice-container="true"]') as HTMLElement;
+          if (clonedEl) {
+            clonedEl.style.width = '210mm';
+            clonedEl.style.minWidth = '210mm';
+            clonedEl.style.height = '297mm';
+            clonedEl.style.minHeight = '297mm';
+            clonedEl.style.margin = '0 auto';
+          }
+        }
       });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfPageHeight = pdf.internal.pageSize.getHeight();
-
-      const margin = 5;
-      const maxW = pdfWidth - margin * 2;
-      const maxH = pdfPageHeight - margin * 2;
-
-      let renderW = maxW;
-      let renderH = (canvas.height * maxW) / canvas.width;
-
-      if (renderH > maxH) {
-        renderH = maxH;
-        renderW = (canvas.width * maxH) / canvas.height;
-      }
-
-      const xPos = (pdfWidth - renderW) / 2;
-      const yPos = margin;
-
-      pdf.addImage(imgData, 'PNG', xPos, yPos, renderW, renderH);
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
       pdf.save(`Invoice_${selectedInvoice.invoiceNo}.pdf`);
     } catch (err) {
       alert('Failed to generate PDF.');
@@ -567,10 +557,26 @@ const AdminInvoicesPage: React.FC = () => {
 
           {/* ── Responsive Scroll Container for Mobile View ── */}
           <div style={{ width: '100%', maxWidth: '210mm', overflowX: 'auto', display: 'flex', justifyContent: 'center', borderRadius: '4px' }}>
-            <div ref={invoiceRef} style={{
-              fontFamily: 'Arial, sans-serif', backgroundColor: 'white', color: '#111',
-              width: '210mm', minWidth: '210mm', height: 'auto', padding: '10mm', boxSizing: 'border-box', fontSize: '11px',
-            }}>
+            <div
+              ref={invoiceRef}
+              data-invoice-container="true"
+              style={{
+                fontFamily: 'Arial, sans-serif',
+                backgroundColor: '#ffffff',
+                color: '#111111',
+                width: '210mm',
+                minWidth: '210mm',
+                height: '297mm',
+                minHeight: '297mm',
+                padding: '10mm',
+                boxSizing: 'border-box',
+                fontSize: '11px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div>
             {/* Invoice Header with Logo & Title */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '2px solid #2a265f', paddingBottom: '8px' }}>
               <div>
@@ -700,8 +706,9 @@ const AdminInvoicesPage: React.FC = () => {
                 </tr>
               </tbody>
             </table>
+          </div>
 
-            {/* Footer */}
+          {/* Footer */}
             <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid black' }}>
               <tbody>
                 <tr>
