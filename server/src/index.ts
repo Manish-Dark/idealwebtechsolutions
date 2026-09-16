@@ -27,6 +27,14 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'idealwebtechsolutions-api',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.get('/api/logo', async (req, res) => {
   try {
     const token = process.env.BLOB_READ_WRITE_TOKEN;
