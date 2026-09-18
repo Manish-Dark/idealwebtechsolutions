@@ -361,7 +361,7 @@ const AdminInvoicesPage: React.FC = () => {
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <tbody>
                       <tr><td colSpan={2} style={{ padding: '4px 8px', textAlign: 'center', fontWeight: 700, background: '#e8e8e8', borderBottom: '1px solid black' }}>Shipping Address / Supplier Details</td></tr>
-                      <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, width: '100px', whiteSpace: 'nowrap' }}>GSTIN</td><td style={{ padding: '3px 8px' }}>26CORPP3939N1</td></tr>
+                      <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, width: '100px', whiteSpace: 'nowrap' }}>GSTIN</td><td style={{ padding: '3px 8px' }}>NYQPK2024F</td></tr>
                       <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Address</td><td style={{ padding: '3px 8px' }}>Capital High St, Phool Bagh, RIICO Industrial Area, Bhiwadi, 301019</td></tr>
                       <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Phone</td><td style={{ padding: '3px 8px' }}>+91-8199055470</td></tr>
                       <tr><td style={{ padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Description</td><td style={{ padding: '3px 8px', fontSize: '10px', color: '#444' }}>Manufacturing &amp; Supply of Precision software</td></tr>
@@ -843,7 +843,7 @@ const AdminInvoicesPage: React.FC = () => {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                           <tbody>
                             <tr><td colSpan={2} style={{ padding: '4px 8px', textAlign: 'center', fontWeight: 700, background: '#e8e8e8', borderBottom: '1px solid black' }}>Shipping Address / Supplier Details</td></tr>
-                            <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, width: '100px', whiteSpace: 'nowrap' }}>GSTIN</td><td style={{ padding: '3px 8px' }}>26CORPP3939N1</td></tr>
+                            <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, width: '100px', whiteSpace: 'nowrap' }}>GSTIN</td><td style={{ padding: '3px 8px' }}>NYQPK2024F</td></tr>
                             <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Address</td><td style={{ padding: '3px 8px' }}>Capital High St, Phool Bagh, RIICO Industrial Area, Bhiwadi, 301019</td></tr>
                             <tr style={{ borderBottom: '1px solid #ddd' }}><td style={{ padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Phone</td><td style={{ padding: '3px 8px' }}>+91-8199055470</td></tr>
                             <tr><td style={{ padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>Description</td><td style={{ padding: '3px 8px', fontSize: '10px', color: '#444' }}>Manufacturing &amp; Supply of Precision software</td></tr>

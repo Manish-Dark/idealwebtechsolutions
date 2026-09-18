@@ -1,5 +1,40 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .invoice-ledger-page,
+  .invoice-ledger-page * {
+    visibility: visible !important;
+  }
+
+  .invoice-ledger-page {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 20px;
+    background: white;
+    color: black;
+  }
+
+  .invoice-ledger-actions,
+  .invoice-ledger-summary {
+    display: none !important;
+  }
+
+  .invoice-ledger-page .glass-card {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+
+  .invoice-ledger-page table {
+    min-width: 0 !important;
+    font-size: 10px;
+  }
+}
+
 /* ══════════════════════════════════════════════
    LIGHT THEME (default) — Vibrant & Colorful
 ══════════════════════════════════════════════ */

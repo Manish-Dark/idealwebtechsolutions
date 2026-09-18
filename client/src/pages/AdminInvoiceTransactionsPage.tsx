@@ -1,13 +1,24 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { AlertCircle, History, IndianRupee, Receipt } from 'lucide-react';
+import { AlertCircle, History, IndianRupee, LockKeyhole, LogOut, Printer, Receipt } from 'lucide-react';
+
+const ledgerPassword = import.meta.env.VITE_INVOICE_LEDGER_PASSWORD || 'Ak@123';
 
 const AdminInvoiceTransactionsPage: React.FC = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [password, setPassword] = useState('');
+  const [isUnlocked, setIsUnlocked] = useState(() => sessionStorage.getItem('invoiceLedgerUnlocked') === 'true');
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!isUnlocked) {
+      setLoading(false);
+      return;
+    }
+
     const fetchTransactions = async () => {
       try {
         const response = await api.get('/api/admin/invoice-transactions');
@@ -21,23 +32,87 @@ const AdminInvoiceTransactionsPage: React.FC = () => {
     };
 
     fetchTransactions();
-  }, []);
+  }, [isUnlocked]);
+
+  useEffect(() => {
+    if (!isUnlocked) return;
+
+    const timeoutId = window.setTimeout(() => {
+      sessionStorage.removeItem('invoiceLedgerUnlocked');
+      setIsUnlocked(false);
+      setPassword('');
+      setError('The ledger was locked automatically after 5 minutes.');
+    }, 5 * 60 * 1000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isUnlocked]);
+
+  const handleUnlock = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (password !== ledgerPassword) {
+      setError('Incorrect ledger password.');
+      return;
+    }
+    sessionStorage.setItem('invoiceLedgerUnlocked', 'true');
+    setError('');
+    setIsUnlocked(true);
+  };
+
+  const handleLedgerLogout = () => {
+    sessionStorage.removeItem('invoiceLedgerUnlocked');
+    setIsUnlocked(false);
+    setPassword('');
+    navigate('/admin');
+  };
 
   const totalValue = transactions.reduce((sum, transaction) => sum + Number(transaction.grandTotal || 0), 0);
   const deletedInvoiceCount = transactions.filter(transaction => !transaction.invoiceExists).length;
 
+  if (!isUnlocked) return (
+    <div style={{ maxWidth: '460px', margin: '80px auto', textAlign: 'center' }}>
+      <div className="glass-card" style={{ padding: '36px 32px' }}>
+        <div style={{ width: '56px', height: '56px', margin: '0 auto 18px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', background: 'rgba(99,102,241,0.12)' }}>
+          <LockKeyhole size={28} />
+        </div>
+        <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Invoice Ledger Locked</h1>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Enter the password to view invoice generation transactions.</p>
+        <form onSubmit={handleUnlock} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <input
+            type="password"
+            value={password}
+            onChange={event => setPassword(event.target.value)}
+            placeholder="Ledger password"
+            autoFocus
+            required
+            style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-main)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+          />
+          {error && <p style={{ color: 'var(--error)', fontSize: '13px', margin: 0 }}>{error}</p>}
+          <button type="submit" style={{ padding: '12px', border: 'none', borderRadius: '8px', background: 'var(--primary)', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Unlock Ledger</button>
+        </form>
+      </div>
+    </div>
+  );
+
   if (loading) return <div style={{ padding: '40px' }}>Loading invoice transactions...</div>;
 
   return (
-    <div>
+    <div className="invoice-ledger-page">
       <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px', flexWrap: 'wrap' }}>
         <div>
           <h1 className="responsive-h1" style={{ fontSize: '32px', fontWeight: 700, marginBottom: '8px' }}>Invoice Generation Ledger</h1>
           <p style={{ color: 'var(--text-muted)' }}>Permanent records of every invoice generated, including deleted invoices.</p>
         </div>
-        <div className="status-pill status-pill--live">
-          <div className="pulse-dot" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-          AUDIT LOG
+        <div className="invoice-ledger-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button onClick={() => window.print()} title="Print all invoice transactions" aria-label="Print all invoice transactions" style={{ width: '38px', height: '38px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)', borderRadius: '8px', background: 'var(--surface)', color: 'var(--primary)', cursor: 'pointer' }}>
+            <Printer size={18} />
+          </button>
+          <button onClick={handleLedgerLogout} title="Logout from invoice ledger" aria-label="Logout from invoice ledger" style={{ width: '38px', height: '38px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '8px', background: 'rgba(239,68,68,0.08)', color: 'var(--error)', cursor: 'pointer' }}>
+            <LogOut size={18} />
+          </button>
+          <div className="status-pill status-pill--live">
+            <div className="pulse-dot" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981' }} />
+            AUDIT LOG
+          </div>
         </div>
       </header>
 
@@ -47,7 +122,7 @@ const AdminInvoiceTransactionsPage: React.FC = () => {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px', marginBottom: '24px' }}>
+      <div className="invoice-ledger-summary" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px', marginBottom: '24px' }}>
         {[
           { icon: <History size={22} />, label: 'Generated Records', value: transactions.length, color: 'var(--primary)' },
           { icon: <IndianRupee size={22} />, label: 'Recorded Value', value: `₹${totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, color: 'var(--success)' },
