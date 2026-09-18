@@ -443,8 +443,8 @@ const AdminInvoicesPage: React.FC = () => {
                       <tr><td style={{ padding: '4px 8px', textAlign: 'center', background: '#e8e8e8', fontWeight: 700, borderBottom: '1px solid black' }}>Bank Details</td></tr>
                       <tr><td style={{ padding: '8px', textAlign: 'center' }}>
                         <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`upi://pay?pa=7703967051@ptyes&pn=Supplier&am=${selectedInvoice.grandTotal || 0}&cu=INR`)}`} alt="UPI QR Code" crossOrigin="anonymous" style={{ width: '70px', height: '70px', border: '1px solid #ccc', borderRadius: '4px', padding: '3px', background: '#fff', marginBottom: '4px' }} />
-                          <span style={{ fontWeight: 700, fontSize: '10px', color: '#222' }}>UPI ID: 7703967051@ptyes</span>
+                          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`upi://pay?pa=8430644424@ybl&pn=Supplier&am=${selectedInvoice.grandTotal || 0}&cu=INR`)}`} alt="UPI QR Code" crossOrigin="anonymous" style={{ width: '70px', height: '70px', border: '1px solid #ccc', borderRadius: '4px', padding: '3px', background: '#fff', marginBottom: '4px' }} />
+                          <span style={{ fontWeight: 700, fontSize: '10px', color: '#222' }}>UPI ID: 8430644424@ybl</span>
                           <span style={{ fontSize: '8px', color: '#666', marginTop: '2px' }}>Pay using GPay / PhonePe / Paytm</span>
                         </div>
                       </td></tr>
@@ -922,11 +922,11 @@ const AdminInvoicesPage: React.FC = () => {
                             <tr><td style={{ padding: '8px', textAlign: 'center' }}>
                               <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <img
-                                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`upi://pay?pa=7703967051@ptyes&pn=Supplier&am=${selectedInvoice.grandTotal || 0}&cu=INR`)}`}
+                                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`upi://pay?pa=8430644424@ybl&pn=Supplier&am=${selectedInvoice.grandTotal || 0}&cu=INR`)}`}
                                   alt="UPI QR Code" crossOrigin="anonymous"
                                   style={{ width: '70px', height: '70px', border: '1px solid #ccc', borderRadius: '4px', padding: '3px', background: '#fff', marginBottom: '4px' }}
                                 />
-                                <span style={{ fontWeight: 700, fontSize: '10px', color: '#222' }}>UPI ID: 7703967051@ptyes</span>
+                                <span style={{ fontWeight: 700, fontSize: '10px', color: '#222' }}>UPI ID: 8430644424@ybl</span>
                                 <span style={{ fontSize: '8px', color: '#666', marginTop: '2px' }}>Pay using GPay / PhonePe / Paytm</span>
                               </div>
                             </td></tr>

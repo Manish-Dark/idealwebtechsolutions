@@ -4,7 +4,7 @@ import { useLogo } from '../hooks/useLogo';
 import {
   LayoutDashboard, Users, Calendar, CheckSquare, LogOut,
   User, FileText, MapPin, CreditCard, Briefcase, Building2,
-  Megaphone, Activity, Car, Sun, Moon, X, Receipt
+  Megaphone, Activity, Car, Sun, Moon, X, Receipt, History
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -26,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { name: 'Dashboard',   icon: <LayoutDashboard size={18} />, path: '/admin' },
     { name: 'Customers',   icon: <Building2 size={18} />,       path: '/admin/customers' },
     { name: 'Invoices',    icon: <Receipt size={18} />,         path: '/admin/invoices' },
+    { name: 'Invoice Ledger', icon: <History size={18} />,       path: '/admin/invoice-transactions' },
     { name: 'Employees',   icon: <Users size={18} />,           path: '/admin/employees' },
     { name: 'Attendance',  icon: <Activity size={18} />,        path: '/admin/attendance' },
     { name: 'Site Visits', icon: <MapPin size={18} />,          path: '/admin/site-visits' },

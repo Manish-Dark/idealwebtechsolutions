@@ -27,6 +27,7 @@ import AdminConveyancePage from './pages/AdminConveyancePage';
 import SiteVisitsPage from './pages/SiteVisitsPage';
 import AdminSiteVisitsPage from './pages/AdminSiteVisitsPage';
 import AdminInvoicesPage from './pages/AdminInvoicesPage';
+import AdminInvoiceTransactionsPage from './pages/AdminInvoiceTransactionsPage';
 import { Menu } from 'lucide-react';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string }> = ({ children, role }) => {
@@ -175,6 +176,12 @@ function App() {
           <Route path="/admin/invoices" element={
             <ProtectedRoute role="admin">
               <AdminInvoicesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/admin/invoice-transactions" element={
+            <ProtectedRoute role="admin">
+              <AdminInvoiceTransactionsPage />
             </ProtectedRoute>
           } />
 

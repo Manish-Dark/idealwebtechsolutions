@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 import Leave from '../models/Leave.js';
 import Task from '../models/Task.js';
@@ -10,6 +11,8 @@ import SiteVisit from '../models/SiteVisit.js';
 import Notice from '../models/Notice.js';
 import Conveyance from '../models/Conveyance.js';
 import Invoice from '../models/Invoice.js';
+import InvoiceTransaction from '../models/InvoiceTransaction.js';
+import { toInvoiceTransactionData } from '../utils/invoiceTransaction.js';
 
 // @desc    Get all users
 // @route   GET /api/admin/users
@@ -454,6 +457,27 @@ const getAllInvoices = async (req: Request, res: Response) => {
   }
 };
 
+// @desc    Get the immutable invoice generation ledger
+// @route   GET /api/admin/invoice-transactions
+// @access  Admin
+const getAllInvoiceTransactions = async (req: Request, res: Response) => {
+  try {
+    const transactions = await InvoiceTransaction.find({}).sort({ generatedAt: -1 }).lean();
+    const sourceInvoiceIds = transactions
+      .map(transaction => transaction.sourceInvoiceId)
+      .filter((sourceInvoiceId): sourceInvoiceId is string => mongoose.isValidObjectId(sourceInvoiceId));
+    const existingInvoices = await Invoice.find({ _id: { $in: sourceInvoiceIds } }).select('_id').lean();
+    const existingInvoiceIds = new Set(existingInvoices.map(invoice => String(invoice._id)));
+
+    res.json(transactions.map(transaction => ({
+      ...transaction,
+      invoiceExists: existingInvoiceIds.has(transaction.sourceInvoiceId),
+    })));
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // @desc    Create new invoice
 // @route   POST /api/admin/invoices
 // @access  Admin
@@ -481,6 +505,12 @@ const createInvoice = async (req: Request, res: Response) => {
     }
 
     const invoice = await Invoice.create(data);
+    try {
+      await InvoiceTransaction.create(toInvoiceTransactionData(invoice));
+    } catch (transactionError) {
+      await Invoice.deleteOne({ _id: invoice._id });
+      throw transactionError;
+    }
     res.status(201).json(invoice);
   } catch (error: any) {
     console.error('Invoice creation error:', error);
@@ -558,6 +588,7 @@ export {
   
   // Invoice Functions
   getAllInvoices,
+  getAllInvoiceTransactions,
   createInvoice,
   deleteInvoice
 };

@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 const rawBaseUrl = import.meta.env.VITE_API_URL || 'https://idealwebtechsolutions.onrender.com';
+const baseUrl = rawBaseUrl.replace(/\/+$/, '').replace(/\/api$/, '');
 
 const api = axios.create({
-  baseURL: rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl,
+  baseURL: baseUrl,
 });
 
 // Add a request interceptor to automatically add the auth token if available

@@ -28,6 +28,7 @@ import {
   getAllConveyances,
   updateConveyanceStatus,
   getAllInvoices,
+  getAllInvoiceTransactions,
   createInvoice,
   deleteInvoice
 } from '../controllers/adminController.js';
@@ -58,6 +59,7 @@ router.route('/notices/:id').delete(deleteNotice);
 router.route('/conveyance').get(getAllConveyances);
 router.route('/conveyance/:id').put(updateConveyanceStatus);
 router.route('/invoices').get(getAllInvoices).post(createInvoice);
+router.route('/invoice-transactions').get(getAllInvoiceTransactions);
 router.route('/invoices/:id').delete(deleteInvoice);
 
 export default router;
